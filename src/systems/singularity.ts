@@ -139,6 +139,10 @@ export function getInfluenceRadius(): number {
 	return currentInfluenceRadius;
 }
 
+export function getSingularityPosition(): { x: number; y: number } {
+	return { x: container.x, y: container.y };
+}
+
 export function initSingularity(): void {
 	lensSprite = buildLens();
 	const ring = buildDiskRing();
@@ -165,8 +169,9 @@ export function initSingularity(): void {
 	const ROTATION_SPEED = 0.015;
 	const MOVE_LERP = 0.18;
 	app.ticker.add((ticker) => {
-		container.x += (pointer.x - container.x) * MOVE_LERP * ticker.deltaTime;
-		container.y += (pointer.y - container.y) * MOVE_LERP * ticker.deltaTime;
+		const t = 1 - Math.pow(1 - MOVE_LERP, ticker.deltaTime);
+		container.x += (pointer.x - container.x) * t;
+		container.y += (pointer.y - container.y) * t;
 		diskContainer.rotation += ROTATION_SPEED * ticker.deltaTime;
 
 		// Lerp hot spot color toward dominant absorbed color

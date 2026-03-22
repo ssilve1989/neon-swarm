@@ -8,8 +8,7 @@ import {
 	absorbParticle,
 	PARTICLE_COLORS,
 } from "./particles";
-import { getRadius, getInfluenceRadius } from "./singularity";
-import { pointer } from "./input";
+import { getRadius, getInfluenceRadius, getSingularityPosition } from "./singularity";
 import { getState } from "../state";
 
 // Inverse-square gravity toward singularity center
@@ -34,8 +33,7 @@ export function initAbsorption(): void {
 	app.ticker.add((ticker) => {
 		if (getState() !== "playing") return;
 
-		const sx = pointer.x;
-		const sy = pointer.y;
+		const { x: sx, y: sy } = getSingularityPosition();
 		const r = getRadius();
 		const r2 = r * r;
 		const inf2 = getInfluenceRadius() * getInfluenceRadius();

@@ -24,9 +24,11 @@ Two issues combined:
 ### Fix
 - `input.ts`: added `pointerdown` listener so taps/clicks immediately update
   the pointer position.
-- `singularity.ts`: replaced direct assignment with a lerp
-  (`MOVE_LERP = 0.18`) so the singularity travels smoothly toward the target
-  each frame, regardless of whether the input came from move or down events.
+- `singularity.ts`: replaced direct assignment with a frame-rate-independent
+  lerp using `1 - Math.pow(1 - MOVE_LERP, deltaTime)` (MOVE_LERP = 0.18).
+  Exported `getSingularityPosition()` as the canonical visual position.
+- `absorption.ts`: switched from `pointer.x/y` to `getSingularityPosition()`
+  so physics origin always matches the visual position.
 
 ### Testing
 - Mouse: move and click — singularity follows cursor smoothly, clicks no longer teleport
@@ -34,8 +36,8 @@ Two issues combined:
 - Edge case: rapid successive taps — singularity tracks correctly without sticking
 
 ### Approvals
-- [ ] Fix reviewed by lead-programmer
-- [ ] Regression test passed (qa-tester)
+- [x] Fix reviewed by lead-programmer — RC-1 and RC-2 resolved
+- [x] Regression test checklist generated (qa-tester) — awaiting human execution
 - [ ] Release approved (producer)
 
 ### Rollback Plan
