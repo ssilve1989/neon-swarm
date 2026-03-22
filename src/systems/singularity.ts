@@ -163,9 +163,10 @@ export function initSingularity(): void {
 	app.canvas.style.cursor = "none";
 
 	const ROTATION_SPEED = 0.015;
+	const MOVE_LERP = 0.18;
 	app.ticker.add((ticker) => {
-		container.x = pointer.x;
-		container.y = pointer.y;
+		container.x += (pointer.x - container.x) * MOVE_LERP * ticker.deltaTime;
+		container.y += (pointer.y - container.y) * MOVE_LERP * ticker.deltaTime;
 		diskContainer.rotation += ROTATION_SPEED * ticker.deltaTime;
 
 		// Lerp hot spot color toward dominant absorbed color

@@ -10,8 +10,11 @@ export function initInput(): void {
 	app.stage.eventMode = "static";
 	app.stage.hitArea = { contains: () => true };
 
-	app.stage.on("pointermove", (e) => {
+	const updatePointer = (e: { global: { x: number; y: number } }): void => {
 		pointer.x = e.global.x;
 		pointer.y = e.global.y;
-	});
+	};
+
+	app.stage.on("pointermove", updatePointer);
+	app.stage.on("pointerdown", updatePointer);
 }
