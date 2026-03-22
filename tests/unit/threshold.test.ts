@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
 	comboBreakListeners: [] as BreakFn[],
 	multiplier: 1,
 	addTimeCalls: [] as number[],
+	mode: "standard" as string | null,
 }));
 
 vi.mock("../../src/systems/absorption", () => ({
@@ -29,6 +30,10 @@ vi.mock("../../src/systems/clock", () => ({
 	addTime: (s: number) => {
 		mocks.addTimeCalls.push(s);
 	},
+}));
+
+vi.mock("../../src/state", () => ({
+	getMode: () => mocks.mode,
 }));
 
 import { initThreshold, onThreshold } from "../../src/systems/threshold";

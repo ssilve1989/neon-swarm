@@ -14,6 +14,7 @@ import { initModeSelection } from "./ui/mode-selection";
 import { initPauseOverlay } from "./ui/pause-overlay";
 import { initGameOverScreen } from "./ui/game-over-screen";
 import { initUpdateToast } from "./ui/update-toast";
+import { initPwaInstallButton } from "./ui/pwa-install-button";
 
 await initApp();
 initInput();
@@ -31,5 +32,6 @@ initModeSelection();
 initPauseOverlay();
 initGameOverScreen();
 initUpdateToast();
+initPwaInstallButton();
 
 onAbsorb((_count, color) => setHotSpotColor(color));
