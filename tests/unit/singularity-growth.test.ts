@@ -35,12 +35,20 @@ import { initSingularityGrowth } from "../../src/systems/singularity-growth";
 // Mirror the private constants from singularity-growth.ts
 const ABSORPTION_RADIUS = 30;
 const GROWTH_SCALE = 2;
-const MAX_RADIUS = 120;
+const MAX_RADIUS_ABS = 120;
+const MAX_RADIUS_VIEWPORT_FRACTION = 0.15;
 
-function computeExpectedRadius(multiplier: number): number {
+function computeMaxRadius(innerWidth: number, innerHeight: number): number {
+	return Math.min(
+		Math.min(innerWidth, innerHeight) * MAX_RADIUS_VIEWPORT_FRACTION,
+		MAX_RADIUS_ABS,
+	);
+}
+
+function computeExpectedRadius(multiplier: number, w = 2000, h = 2000): number {
 	return Math.min(
 		ABSORPTION_RADIUS + GROWTH_SCALE * Math.sqrt(multiplier - 1),
-		MAX_RADIUS,
+		computeMaxRadius(w, h),
 	);
 }
 
@@ -53,6 +61,9 @@ function triggerComboBreak() {
 }
 
 beforeAll(() => {
+	// Use a large viewport so the absolute cap (MAX_RADIUS_ABS) is the binding constraint
+	vi.stubGlobal("innerWidth", 2000);
+	vi.stubGlobal("innerHeight", 2000);
 	initSingularityGrowth();
 });
 
@@ -80,10 +91,29 @@ describe("radius growth formula", () => {
 		expect(mocks.setRadius).toHaveBeenCalledWith(computeExpectedRadius(10));
 	});
 
-	it("caps radius at MAX_RADIUS", () => {
+	it("caps radius at MAX_RADIUS_ABS on large viewport", () => {
 		mocks.multiplier = 3000; // far past the cap
 		triggerAbsorb();
-		expect(mocks.setRadius).toHaveBeenCalledWith(MAX_RADIUS);
+		expect(mocks.setRadius).toHaveBeenCalledWith(MAX_RADIUS_ABS);
+	});
+});
+
+describe("viewport-relative size cap", () => {
+	it("caps below MAX_RADIUS_ABS on mobile landscape viewport", () => {
+		// Arrange: simulate iPhone 13 landscape (844×390)
+		vi.stubGlobal("innerWidth", 844);
+		vi.stubGlobal("innerHeight", 390);
+		mocks.multiplier = 3000;
+
+		// Act
+		triggerAbsorb();
+
+		// Assert: cap = min(390 * 0.15, 120) = 58.5
+		expect(mocks.setRadius).toHaveBeenCalledWith(computeMaxRadius(844, 390));
+
+		// Restore
+		vi.stubGlobal("innerWidth", 2000);
+		vi.stubGlobal("innerHeight", 2000);
 	});
 });
 

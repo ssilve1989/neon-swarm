@@ -7,3 +7,9 @@ We've smoothed out the singularity's moves and fixed a couple of quality-of-life
 - **PWA rotation fix** — If you've installed Neon Swarm on your home screen, it'll now spin with your device like it should.
 
 Keep swallowing. Keep climbing. Game on.
+
+---
+
+## Hotfix 2 — 2026-03-22
+
+- **Singularity scales with your screen** — The black hole no longer grows to absurd sizes on mobile, especially in landscape. It now respects your viewport so it feels right on every device.
