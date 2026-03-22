@@ -1,7 +1,9 @@
 # Release Checklist: 0.1.0 -- Web (Browser / PWA)
+
 Generated: 2026-03-22
 
-## Project: Neon Swarm Sucker
+## Project: Neon Swarm
+
 **Sprint:** Sprint-01 — Empty Canvas → Shippable MVP
 **Stack:** Vite 8 + TypeScript + PixiJS v8 + vite-plugin-pwa
 
@@ -136,10 +138,12 @@ marking the release READY:
 ~~4. Performance benchmark not recorded~~ — **RESOLVED** via `prototypes/particle-system/`: 120fps @ 10k on Chrome, 1–2.5ms JS frame time.
 
 **Not blocking (deferred):**
+
 - No test framework configured (no `tests/` directory) — acceptable for 0.1.0
   if manual acceptance criteria are fully signed off.
 - Analytics and crash reporting are out of scope for this release.
 
 **Sign-offs Required:**
+
 - [ ] Developer (manual playtest, acceptance criteria)
 - [ ] Producer / Owner

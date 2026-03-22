@@ -1,11 +1,13 @@
-# Sprint 1 — Neon Swarm Sucker: Empty Canvas → Shippable MVP
+# Sprint 1 — Neon Swarm: Empty Canvas → Shippable MVP
 
 ## Sprint Goal
+
 Build the complete game from scratch in dependency order, reaching a shippable
 browser build: particle swarm, singularity, full combo loop, clock, audio,
 juice, HUD, and game over screen.
 
 ## Capacity
+
 - Pace: user-defined (no fixed deadline)
 - Approach: implement directly from systems index — no individual GDDs
 - Buffer: Absorption System spatial optimization is the only remaining
@@ -14,6 +16,7 @@ juice, HUD, and game over screen.
 ---
 
 ## Milestone 1: Project Bootstrap
+
 *Prerequisite — none of the game systems can exist without this*
 
 | ID | Task | Est. | Acceptance Criteria |
@@ -24,6 +27,7 @@ juice, HUD, and game over screen.
 ---
 
 ## Milestone 2: Foundation
+
 *Core infrastructure — all game systems register on these*
 
 | ID | Task | Est. | Dependencies | Acceptance Criteria |
@@ -35,6 +39,7 @@ juice, HUD, and game over screen.
 ---
 
 ## Milestone 3: First Visual
+
 *First time something appears and moves on screen*
 
 | ID | Task | Est. | Dependencies | Acceptance Criteria |
@@ -47,6 +52,7 @@ juice, HUD, and game over screen.
 ---
 
 ## Milestone 4: First Playable
+
 *Complete core loop — you can play a session start to finish*
 
 | ID | Task | Est. | Dependencies | Acceptance Criteria |
@@ -63,6 +69,7 @@ juice, HUD, and game over screen.
 ---
 
 ## Milestone 5: Full MVP (Shippable)
+
 *Juice, audio, UI — the game feels like a game*
 
 | ID | Task | Est. | Dependencies | Acceptance Criteria |
@@ -77,6 +84,7 @@ juice, HUD, and game over screen.
 ---
 
 ## Milestone 6: Stretch Goals
+
 *Only after M5 is done and feels good*
 
 | ID | Task | Est. | Dependencies | Acceptance Criteria |

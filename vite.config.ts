@@ -9,7 +9,7 @@ export default defineConfig({
 				enabled: true,
 			},
 			manifest: {
-				name: "Neon Swarm Sucker",
+				name: "Neon Swarm",
 				short_name: "Neon Swarm",
 				description: "An arcade particle-absorption game",
 				id: "/",

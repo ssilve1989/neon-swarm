@@ -1,4 +1,4 @@
-# Systems Index: Neon Swarm Sucker
+# Systems Index: Neon Swarm
 
 > **Status**: Approved
 > **Created**: 2026-03-22
@@ -9,7 +9,7 @@
 
 ## Overview
 
-Neon Swarm Sucker is a single-screen arcade game built entirely around one
+Neon Swarm is a single-screen arcade game built entirely around one
 feedback loop: move → absorb → chain → escalate. The system scope reflects
 that focus — 15 MVP systems covering rendering, input, particle simulation,
 collision, combo logic, time pressure, audio, and visual juice. There is no
