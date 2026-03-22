@@ -1,7 +1,5 @@
 import { onComboBreak } from "./combo";
-import { onThreshold } from "./threshold";
 import { onStateChange } from "../state";
-import type { ThresholdTier } from "./threshold";
 
 const bgm = new Audio(
 	new URL("../../assets/audio/nebula-drift.mp3", import.meta.url).href,
@@ -33,22 +31,6 @@ function playComboBreak(): void {
 	osc.stop(ac.currentTime + 0.5);
 }
 
-// Single bell tone per threshold tier
-const TIER_FREQ: Record<ThresholdTier, number> = { 1: 523, 2: 659, 3: 784 };
-
-function playThreshold(tier: ThresholdTier): void {
-	const ac = getCtx();
-	const osc = ac.createOscillator();
-	const gain = ac.createGain();
-	osc.connect(gain);
-	gain.connect(ac.destination);
-	osc.type = "triangle";
-	osc.frequency.setValueAtTime(TIER_FREQ[tier], ac.currentTime);
-	gain.gain.setValueAtTime(0.08, ac.currentTime);
-	gain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 1.0);
-	osc.start(ac.currentTime);
-	osc.stop(ac.currentTime + 1.0);
-}
 
 export function initAudio(): void {
 	let gameIsPlaying = false;
@@ -72,5 +54,4 @@ export function initAudio(): void {
 	});
 
 	onComboBreak(() => playComboBreak());
-	onThreshold((tier) => playThreshold(tier));
 }
