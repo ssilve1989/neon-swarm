@@ -1,15 +1,19 @@
 import { app } from "../app";
+import { getState } from "../state";
 import {
+	absorbParticle,
+	PARTICLE_COLORS,
+	PARTICLE_COUNT,
 	px,
 	py,
 	vx,
 	vy,
-	PARTICLE_COUNT,
-	absorbParticle,
-	PARTICLE_COLORS,
 } from "./particles";
-import { getRadius, getInfluenceRadius, getSingularityPosition } from "./singularity";
-import { getState } from "../state";
+import {
+	getInfluenceRadius,
+	getRadius,
+	getSingularityPosition,
+} from "./singularity";
 
 // Inverse-square gravity toward singularity center
 const GRAVITY_K = 60;
