@@ -35,6 +35,40 @@ and escalating numbers.
 - The threat is the clock: frantic sweeps to maintain chain as time bleeds away
 - Tension curve: early game is generous, late game is desperate clock management
 
+## Particle Types
+
+| Type | Color | Behavior | Score Value |
+|------|-------|----------|-------------|
+| Standard | Cyan | Normal drift | Base |
+| Time | Gold / amber | Slow passive drift | +1s per absorption |
+| Repulsor | Red / orange | Flees singularity | 2× base |
+
+- **Time particles**: rare spawn (~2–3 on screen at a time). Create deliberate clock-hunting moments. Reward players who pursue them instead of sweeping blindly.
+- **Repulsor particles**: actively flee from the singularity. Worth 2× base score to reward aggressive pursuit. Punish passive or slow circular sweeping.
+
+## Threshold Spectacle — Nova Burst
+
+At each multiplier threshold (50×, 100×, 200×):
+
+1. Singularity absorption radius expands to **~3× normal for 0.5 seconds** (nova burst)
+2. All particles within burst radius are auto-absorbed — each counts as a full combo hit
+3. Clock receives +5s (Standard mode only)
+4. Visual: shockwave ripple + brief flash at singularity origin
+
+Nova burst absorptions chain naturally into the existing combo — the burst extends the combo timer and feeds the multiplier, making thresholds feel like a rewarded frenzy.
+
+## Game Modes
+
+| Mode | Clock | Threshold Extensions | Score Metric | Run Ends When |
+|------|-------|---------------------|--------------|---------------|
+| Standard | 30s | +5s at 50×/100×/200× | Total score | Clock hits 0 |
+| Blitz | 15s | None | Total score | Clock hits 0 |
+| Zen | None | N/A | Peak multiplier | Player quits |
+
+- **Standard**: existing flow — build multiplier, chase threshold bonuses, manage the clock.
+- **Blitz**: same core loop in 15 fixed seconds. No clock extensions. Pure ceiling score run.
+- **Zen**: no clock. Combo break resets multiplier but never ends the run. Play indefinitely. Score = highest multiplier reached.
+
 ## Audio — Procedural (Web Audio API)
 
 No asset files. All audio generated at runtime:
@@ -45,20 +79,32 @@ No asset files. All audio generated at runtime:
 - **Threshold milestone**: brief ascending chime on +5s grants
 - Bundle cost: ~0 bytes
 
+## Persistence
+
+All data in `localStorage` — no server required.
+
+- **Personal best per mode**: all-time high score (Standard / Blitz) or peak multiplier (Zen)
+- **Session stats on game over**: peak multiplier, particles absorbed, time survived
+- **Shareable score card**: Canvas API renders final score + singularity snapshot as PNG (download or native share API)
+
 ## Design Pillars
 
 - **Feel over mechanics** — juice and feedback are the game
 - **Zero friction** — pointer input only (mouse + touch), instant start, no UI clutter
 - **Escalation** — everything gets bigger, faster, louder until it breaks
 
-## Scope (Jam)
+## Scope
 
 | Must Have | Nice to Have | Cut |
 |-----------|-------------|-----|
-| Particle swarm (10k+) | Particle variety/behaviors | Levels / progression |
-| Cursor singularity with growth | Screen shake + chromatic aberration | Enemies / hazards |
-| Combo timer + multiplier | High score persistence (localStorage) | Multiplayer |
-| Survival Time Attack (30s clock) | Attract mode / idle animation | Unlockables |
+| Particle swarm (10k+) | Screen shake + chromatic aberration | Levels / progression |
+| Time + Repulsor particle types | Session stats (peak multiplier, absorbed) | Enemies / hazards |
+| Cursor singularity with growth | Shareable score card (Canvas PNG) | Multiplayer |
+| Combo timer + multiplier | Attract mode / idle animation | Unlockables |
+| Nova burst at thresholds | — | — |
+| Game modes (Standard, Blitz, Zen) | — | — |
+| Mode selection screen | — | — |
+| Per-mode personal bests (localStorage) | — | — |
 | Score display | — | — |
 | Game over + restart | — | — |
 | Procedural audio (Web Audio API) | — | — |

@@ -1,6 +1,7 @@
 import { onAbsorb } from "./absorption";
 import { getMultiplier, onComboBreak } from "./combo";
 import { addTime } from "./clock";
+import { getMode } from "../state";
 
 export type ThresholdTier = 1 | 2 | 3;
 
@@ -33,7 +34,7 @@ export function initThreshold(): void {
 		for (const [value, tier] of THRESHOLDS) {
 			if (m >= value && !crossed.has(tier)) {
 				crossed.add(tier);
-				addTime(TIME_BONUS);
+				if (getMode() === "standard") addTime(TIME_BONUS);
 				for (const fn of listeners) fn(tier);
 			}
 		}

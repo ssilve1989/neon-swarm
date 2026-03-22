@@ -10,6 +10,8 @@ import { initScoring } from "./systems/scoring";
 import { initSingularityGrowth } from "./systems/singularity-growth";
 import { initAudio } from "./systems/audio";
 import { initHud } from "./ui/hud";
+import { initModeSelection } from "./ui/mode-selection";
+import { initPauseOverlay } from "./ui/pause-overlay";
 import { initGameOverScreen } from "./ui/game-over-screen";
 import { initUpdateToast } from "./ui/update-toast";
 
@@ -25,6 +27,8 @@ initScoring();
 initSingularityGrowth();
 initAudio();
 initHud();
+initModeSelection();
+initPauseOverlay();
 initGameOverScreen();
 initUpdateToast();
 
