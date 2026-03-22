@@ -1,5 +1,6 @@
 import { Container, Sprite } from "pixi.js";
 import { app } from "../app";
+import { getState, onStateChange } from "../state";
 import { pointer } from "./input";
 
 export const EVENT_HORIZON_RADIUS = 20;
@@ -167,11 +168,17 @@ export function initSingularity(): void {
 	container.addChild(void_);
 
 	app.stage.addChild(container);
-	app.canvas.style.cursor = "none";
+	const updateCursor = (state: string) => {
+		document.body.style.cursor = state === "playing" ? "none" : "";
+	};
+	onStateChange(updateCursor);
+	updateCursor(getState());
 
 	const ROTATION_SPEED = 0.015;
 	const MOVE_LERP = 0.05;
 	app.ticker.add((ticker) => {
+		if (getState() !== "playing") return;
+
 		const t = 1 - (1 - MOVE_LERP) ** ticker.deltaTime;
 		container.x += (pointer.x - container.x) * t;
 		container.y += (pointer.y - container.y) * t;
