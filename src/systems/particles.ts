@@ -1,6 +1,7 @@
 import { Container, Sprite, Graphics } from "pixi.js";
 import { app } from "../app";
 import { getParticleCount } from "../utils/device-tier";
+import { getState, onStateChange } from "../state";
 
 export const PARTICLE_COUNT = getParticleCount();
 
@@ -57,7 +58,17 @@ export function initParticles(): void {
 		spawn(i);
 	}
 
+	onStateChange((state) => {
+		if (state === "playing") {
+			for (let i = 0; i < PARTICLE_COUNT; i++) {
+				spawn(i);
+				sprites[i].alpha = 0.4 + Math.random() * 0.6;
+			}
+		}
+	});
+
 	app.ticker.add((ticker) => {
+		if (getState() !== "playing") return;
 		const w = app.screen.width;
 		const h = app.screen.height;
 		const dt = ticker.deltaTime;

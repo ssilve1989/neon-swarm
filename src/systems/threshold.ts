@@ -1,7 +1,7 @@
 import { onAbsorb } from "./absorption";
 import { getMultiplier, onComboBreak } from "./combo";
 import { addTime } from "./clock";
-import { getMode } from "../state";
+import { getMode, onStateChange } from "../state";
 
 export type ThresholdTier = 1 | 2 | 3;
 
@@ -27,6 +27,10 @@ export function onThreshold(fn: ThresholdListener): () => void {
 }
 
 export function initThreshold(): void {
+	onStateChange((state) => {
+		if (state === "playing") crossed.clear();
+	});
+
 	onComboBreak(() => crossed.clear());
 
 	onAbsorb(() => {
