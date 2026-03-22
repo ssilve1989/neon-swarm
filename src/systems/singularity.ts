@@ -167,7 +167,7 @@ export function initSingularity(): void {
 	app.canvas.style.cursor = "none";
 
 	const ROTATION_SPEED = 0.015;
-	const MOVE_LERP = 0.18;
+	const MOVE_LERP = 0.05;
 	app.ticker.add((ticker) => {
 		const t = 1 - (1 - MOVE_LERP) ** ticker.deltaTime;
 		container.x += (pointer.x - container.x) * t;
