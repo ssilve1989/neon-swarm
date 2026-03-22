@@ -27,7 +27,7 @@ types, session stats). Two systems are not yet started (Mode Selection, High Sco
 | 1 | Renderer / App | Core | MVP | Implemented | src/app.ts, src/main.ts | — |
 | 2 | Input System | Core | MVP | Implemented | src/systems/input.ts | — |
 | 3 | Game State Machine | Core | MVP | Needs Update | design/gdd/game-state-machine.md | — |
-| 4 | Particle System | Core | MVP | Needs Update | src/systems/particles.ts | Renderer / App |
+| 4 | Particle System | Core | MVP | Needs Update | design/gdd/particles.md | Renderer / App |
 | 5 | Singularity | Core | MVP | Implemented | src/systems/singularity.ts | Input System, Renderer / App |
 | 6 | Combo & Multiplier | Gameplay | MVP | Implemented | src/systems/combo.ts | Game State Machine |
 | 7 | Session Clock | Gameplay | MVP | Needs Update | src/systems/clock.ts | Game State Machine |

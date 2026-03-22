@@ -2,8 +2,8 @@ import { app } from "../app";
 import { getState } from "../state";
 import {
 	absorbParticle,
+	getParticlesInRegion,
 	PARTICLE_COLORS,
-	PARTICLE_COUNT,
 	px,
 	py,
 	vx,
@@ -47,7 +47,7 @@ export function initAbsorption(): void {
 			totalG = 0,
 			totalB = 0;
 
-		for (let i = 0; i < PARTICLE_COUNT; i++) {
+		for (const i of getParticlesInRegion(sx, sy, getInfluenceRadius())) {
 			const dx = px[i] - sx;
 			const dy = py[i] - sy;
 			const dist2 = dx * dx + dy * dy;
@@ -73,9 +73,9 @@ export function initAbsorption(): void {
 				// Cap speed to prevent particles blinking across screen
 				const speed2 = vx[i] * vx[i] + vy[i] * vy[i];
 				if (speed2 > MAX_SPEED_SQ) {
-					const inv = 6 / Math.sqrt(speed2);
-					vx[i] *= inv;
-					vy[i] *= inv;
+					const scale = Math.sqrt(MAX_SPEED_SQ / speed2);
+					vx[i] *= scale;
+					vy[i] *= scale;
 				}
 			}
 		}

@@ -139,8 +139,11 @@ export function getInfluenceRadius(): number {
 	return currentInfluenceRadius;
 }
 
+const _pos = { x: 0, y: 0 };
 export function getSingularityPosition(): { x: number; y: number } {
-	return { x: container.x, y: container.y };
+	_pos.x = container.x;
+	_pos.y = container.y;
+	return _pos;
 }
 
 export function initSingularity(): void {
