@@ -26,21 +26,21 @@ types, session stats). Two systems are not yet started (Mode Selection, High Sco
 |---|-------------|----------|----------|--------|------------|------------|
 | 1 | Renderer / App | Core | MVP | Implemented | src/app.ts, src/main.ts | — |
 | 2 | Input System | Core | MVP | Implemented | src/systems/input.ts | — |
-| 3 | Game State Machine | Core | MVP | Needs Update | design/gdd/game-state-machine.md | — |
+| 3 | Game State Machine | Core | MVP | Implemented | design/gdd/game-state-machine.md | — |
 | 4 | Particle System | Core | MVP | Needs Update | design/gdd/particles.md | Renderer / App |
 | 5 | Singularity | Core | MVP | Implemented | src/systems/singularity.ts | Input System, Renderer / App |
 | 6 | Combo & Multiplier | Gameplay | MVP | Implemented | src/systems/combo.ts | Game State Machine |
-| 7 | Session Clock | Gameplay | MVP | Needs Update | src/systems/clock.ts | Game State Machine |
-| 8 | Scoring | Gameplay | MVP | Needs Update | src/systems/scoring.ts | Combo & Multiplier |
+| 7 | Session Clock | Gameplay | MVP | Implemented | src/systems/clock.ts | Game State Machine |
+| 8 | Scoring | Gameplay | MVP | Implemented | src/systems/scoring.ts | Combo & Multiplier |
 | 9 | Absorption System | Gameplay | MVP | Implemented | src/systems/absorption.ts | Particle System, Singularity |
 | 10 | Singularity Growth | Gameplay | MVP | Implemented | src/systems/singularity-growth.ts | Combo & Multiplier, Singularity |
-| 11 | Threshold Events | Gameplay | MVP | Needs Update | src/systems/threshold.ts | Combo & Multiplier, Session Clock |
+| 11 | Threshold Events | Gameplay | MVP | Needs Update (nova burst) | src/systems/threshold.ts | Combo & Multiplier, Session Clock |
 | 12 | Audio | Audio | MVP | Implemented | src/systems/audio.ts | Absorption System, Threshold Events, Combo & Multiplier |
 | 13 | Visual Feedback | Core | MVP | Implemented | src/systems/visual-feedback.ts | Absorption System, Threshold Events |
-| 14 | HUD | UI | MVP | Needs Update | src/ui/hud.ts | Scoring, Combo & Multiplier, Session Clock |
-| 15 | Game Over Screen | UI | MVP | Needs Update | src/ui/game-over-screen.ts | Game State Machine, Scoring |
+| 14 | HUD | UI | MVP | Implemented | src/ui/hud.ts | Scoring, Combo & Multiplier, Session Clock |
+| 15 | Game Over Screen | UI | MVP | Needs Update (stats + export) | src/ui/game-over-screen.ts | Game State Machine, Scoring |
 | 16 | High Score | Persistence | Vertical Slice | Not Started | — | Scoring, Game Over Screen, Game State Machine |
-| 17 | Mode Selection | UI | MVP | Approved | design/gdd/mode-selection.md | Game State Machine |
+| 17 | Mode Selection | UI | MVP | Implemented | design/gdd/mode-selection.md | Game State Machine |
 
 ---
 
@@ -162,9 +162,9 @@ Six existing systems have expanded scope from the original design. Flag these fo
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 17 |
-| Implemented (no changes needed) | 9 |
-| Implemented (needs update for v1.1) | 6 |
-| Not started | 2 |
+| Fully implemented | 14 |
+| Needs update (v1.1 features remaining) | 2 (Threshold: nova burst; Game Over: stats + export) |
+| Not started | 1 (High Score) |
 | Design docs written | 2 (Game State Machine, Mode Selection) |
 | Design docs approved | 2 |
 
@@ -173,14 +173,14 @@ Six existing systems have expanded scope from the original design. Flag these fo
 ## Next Steps
 
 ### New systems to build
-- [ ] Mode Selection screen — genuinely new UI, no existing code (`/design-system mode-selection`)
+- [x] Mode Selection screen — **Implemented**
 - [ ] High Score — per-mode localStorage, Vertical Slice (`/design-system high-score`)
 
-### Existing systems to update (v1.1 features)
-- [ ] Game State Machine — expand `state.ts`: add PAUSED state, mode tracking, Page Visibility API (GDD approved)
-- [ ] Particle System — add Time + Repulsor particle type architecture
-- [ ] Session Clock — make mode-aware (Standard 30s, Blitz 15s, Zen disabled)
-- [ ] Scoring — add session stats tracking + peak multiplier metric for Zen
+### Existing systems to update (v1.1 features remaining)
+- [x] Game State Machine — PAUSED state, mode tracking, Page Visibility API — **Done**
+- [x] Session Clock — mode-aware (Standard 30s, Blitz 15s, Zen disabled) — **Done**
+- [x] Scoring — peak multiplier tracking — **Done**
+- [x] HUD — mode indicator, Zen label, pause button — **Done**
 - [ ] Threshold Events — add nova burst logic
-- [ ] HUD — add Zen quit button; mode indicator
+- [ ] Particle System — add Time + Repulsor particle type architecture
 - [ ] Game Over Screen — add session stats display + Canvas PNG export

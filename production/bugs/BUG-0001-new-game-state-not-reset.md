@@ -5,8 +5,10 @@
 **ID**: BUG-0001
 **Severity**: S2-Major
 **Priority**: P1-Immediate
-**Status**: Open
+**Status**: Resolved
 **Reported**: 2026-03-22
+**Resolved**: 2026-03-22
+**Resolution**: Fixed in commit `8a3f6f0 fix(game-restart): reset particles and threshold state on new game`
 **Reporter**: Steve
 
 ## Classification

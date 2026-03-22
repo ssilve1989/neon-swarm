@@ -5,26 +5,26 @@
 
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
-- **Language**: [TO BE CONFIGURED]
-- **Rendering**: [TO BE CONFIGURED]
-- **Physics**: [TO BE CONFIGURED]
+- **Engine**: PixiJS v8 (browser-based, no native engine)
+- **Language**: TypeScript (Vite build, strict mode)
+- **Rendering**: WebGL via PixiJS v8 — additive blending for particles, single draw call via Container + shared texture
+- **Physics**: Custom — manual Euler integration (velocity arrays `vx[]`/`vy[]`), no physics library
 
 ## Naming Conventions
 
-- **Classes**: [TO BE CONFIGURED]
-- **Variables**: [TO BE CONFIGURED]
-- **Signals/Events**: [TO BE CONFIGURED]
-- **Files**: [TO BE CONFIGURED]
-- **Scenes/Prefabs**: [TO BE CONFIGURED]
-- **Constants**: [TO BE CONFIGURED]
+- **Types/Interfaces**: PascalCase (e.g. `GameState`, `GameMode`, `ComboBreakListener`)
+- **Variables & Functions**: camelCase (e.g. `multiplier`, `getMultiplier`, `breakListeners`)
+- **Event Callbacks**: `onX(fn)` pattern, returns an unsubscribe function (e.g. `onComboBreak`, `onStateChange`)
+- **Files**: kebab-case (e.g. `singularity-growth.ts`, `game-over-screen.ts`)
+- **Scenes/Prefabs**: N/A — web game, no scene system
+- **Constants**: SCREAMING_SNAKE_CASE (e.g. `COMBO_DURATION`)
 
 ## Performance Budgets
 
 - **Target Framerate**: 60 fps (all tiers)
 - **Frame Budget**: 16.67ms
 - **Draw Calls**: ~1 (PixiJS batches all particles into a single draw call via Container + shared texture)
-- **Memory Ceiling**: [TO BE CONFIGURED]
+- **Memory Ceiling**: Not formally budgeted — monitor via DevTools heap snapshots
 
 ### Particle Budget by Device Tier
 
@@ -40,21 +40,22 @@ Tier is read-once at page load. A page reload is required for tier changes (e.g.
 
 ## Testing
 
-- **Framework**: [TO BE CONFIGURED]
-- **Minimum Coverage**: [TO BE CONFIGURED]
-- **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
+- **Framework**: Vitest (unit tests in `tests/unit/`)
+- **Minimum Coverage**: Not formally set — cover all gameplay formula systems
+- **Required Tests**: Score formula, combo timer, clock countdown, singularity growth curve, threshold crossings
 
 ## Forbidden Patterns
 
-<!-- Add patterns that should never appear in this project's codebase -->
-- [None configured yet — add as architectural decisions are made]
+- No audio files — Web Audio API only (all sound is procedural)
+- No physics library — all motion is manual Euler integration
+- No `as any` type casts — fix type errors with proper narrowing
 
 ## Allowed Libraries / Addons
 
-<!-- Add approved third-party dependencies here -->
-- [None configured yet — add as dependencies are approved]
+- **PixiJS v8** — rendering, ticker, container/sprite management
+- **Vite** — build and dev server
+- **Vitest** — unit testing
 
 ## Architecture Decisions Log
 
-<!-- Quick reference linking to full ADRs in docs/architecture/ -->
-- [No ADRs yet — use /architecture-decision to create one]
+- [ADR-001] Device-tier particle budget — `docs/architecture/device-tier-particle-budget.md`
