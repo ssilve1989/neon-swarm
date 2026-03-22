@@ -51,12 +51,23 @@ function playThreshold(tier: ThresholdTier): void {
 }
 
 export function initAudio(): void {
+	let gameIsPlaying = false;
+
 	onStateChange((state) => {
-		if (state === "playing") {
+		gameIsPlaying = state === "playing";
+		if (gameIsPlaying) {
 			bgm.currentTime = 0;
 			bgm.play().catch(() => undefined);
 		} else {
 			bgm.pause();
+		}
+	});
+
+	document.addEventListener("visibilitychange", () => {
+		if (document.hidden) {
+			bgm.pause();
+		} else if (gameIsPlaying) {
+			bgm.play().catch(() => undefined);
 		}
 	});
 
