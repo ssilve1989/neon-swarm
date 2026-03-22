@@ -138,7 +138,7 @@ None found.
 | System | Risk Type | Risk Description | Mitigation |
 |--------|-----------|-----------------|------------|
 | ~~Particle System~~ | ~~Technical~~ | ~~Prototyped and validated~~ — 120fps at 20k particles, ~1 draw call, 1–2.5ms JS time. **Not a risk.** | See `prototypes/particle-system/REPORT.md` |
-| Absorption System | Technical | Per-frame proximity check on 10k particles is O(n); naive impl will tank frame budget | Spatial grid or squared-distance batch check; skip sqrt; benchmark early |
+| Absorption System | Technical | Per-frame proximity check on active pool is O(n); naive impl will tank frame budget | Spatial grid or squared-distance batch check; skip sqrt; benchmark early. Pool is now device-tiered (1k mobile / 3k tablet / 10k desktop) via `src/utils/device-tier.ts`, reducing worst-case mobile load by 10×. |
 
 ---
 

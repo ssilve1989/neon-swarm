@@ -1,7 +1,8 @@
 import { Container, Sprite, Graphics } from "pixi.js";
 import { app } from "../app";
+import { getParticleCount } from "../utils/device-tier";
 
-export const PARTICLE_COUNT = 10_000;
+export const PARTICLE_COUNT = getParticleCount();
 
 export const px = new Float32Array(PARTICLE_COUNT);
 export const py = new Float32Array(PARTICLE_COUNT);
