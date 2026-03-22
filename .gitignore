@@ -26,6 +26,7 @@ builds/
 bin/
 obj/
 out/
+dev-dist/
 dist/
 *.exe
 *.dll

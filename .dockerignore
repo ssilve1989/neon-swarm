@@ -1,0 +1,9 @@
+design
+dev-dist
+dist
+docs
+fly.toml
+node_modules
+production
+prototypes
+tests

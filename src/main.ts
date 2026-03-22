@@ -1,0 +1,31 @@
+import { initApp } from "./app";
+import { initInput } from "./systems/input";
+import { initParticles } from "./systems/particles";
+import { initSingularity, setHotSpotColor } from "./systems/singularity";
+import { initAbsorption, onAbsorb } from "./systems/absorption";
+import { initCombo } from "./systems/combo";
+import { initClock } from "./systems/clock";
+import { initThreshold } from "./systems/threshold";
+import { initScoring } from "./systems/scoring";
+import { initSingularityGrowth } from "./systems/singularity-growth";
+import { initAudio } from "./systems/audio";
+import { initHud } from "./ui/hud";
+import { initGameOverScreen } from "./ui/game-over-screen";
+import { initUpdateToast } from "./ui/update-toast";
+
+await initApp();
+initInput();
+initParticles();
+initSingularity();
+initAbsorption();
+initCombo();
+initClock();
+initThreshold();
+initScoring();
+initSingularityGrowth();
+initAudio();
+initHud();
+initGameOverScreen();
+initUpdateToast();
+
+onAbsorb((_count, color) => setHotSpotColor(color));
