@@ -70,7 +70,7 @@ Before writing any code:
    prioritized optimization recommendations with estimated impact and
    implementation cost.
 4. **Regression Detection**: Compare performance across builds to detect
-   regressions. Every merge to main should include a performance check.
+   regressions. Every merge to master should include a performance check.
 5. **Memory Analysis**: Track memory usage by category -- textures, meshes,
    audio, game state, UI. Flag leaks and unexplained growth.
 6. **Load Time Analysis**: Profile and optimize load times for each scene

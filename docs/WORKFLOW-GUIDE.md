@@ -97,7 +97,7 @@ Start a new Claude Code session. You should see output from the
 
 ```
 === Claude Code Game Studios -- Session Context ===
-Branch: main
+Branch: master
 Recent commits:
   abc1234 Initial commit
 ===================================
@@ -1579,12 +1579,12 @@ Agent: "Launch approved. Deployment begins 12:00 UTC tomorrow. I'll monitor and
 
 ### Step 9.5: Ship
 
-The `validate-push` hook will warn you when pushing to `main` or `develop`.
+The `validate-push` hook will warn you when pushing to `master` or `develop`.
 This is intentional -- release pushes should be deliberate:
 
 ```
 git tag v1.0.0
-git push origin main --tags
+git push origin master --tags
 ```
 
 ---

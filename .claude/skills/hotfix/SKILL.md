@@ -46,7 +46,7 @@ When this skill is invoked:
 
 3. **Create the hotfix branch** (if git is initialized):
    ```
-   git checkout -b hotfix/[short-name] [release-tag-or-main]
+   git checkout -b hotfix/[short-name] [release-tag-or-master]
    ```
 
 4. **Investigate and implement the fix** — Focus on the minimal change that resolves the issue. Do NOT refactor, clean up, or add features alongside the hotfix.
