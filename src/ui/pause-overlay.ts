@@ -1,35 +1,41 @@
 import { Container, Graphics, Text } from "pixi.js";
 import { app } from "../app";
-import { resumeGame, endRun, quitToMenu, onStateChange } from "../state";
+import { endRun, onStateChange, quitToMenu, resumeGame } from "../state";
 
 const FADE_SPEED = 0.12;
 
 // ── PixiJS objects ────────────────────────────────────────────────────────────
-const overlay  = new Container();
+const overlay = new Container();
 const screenBg = new Graphics();
 
 const titleText = new Text({
 	text: "PAUSED",
-	style: { fontSize: 52, fill: 0xffffff, fontFamily: "monospace", fontWeight: "bold" },
+	style: {
+		fontSize: 52,
+		fill: 0xffffff,
+		fontFamily: "monospace",
+		fontWeight: "bold",
+	},
 });
 
 type Option = { label: string; action: () => void };
 const OPTIONS: Option[] = [
-	{ label: "RESUME",       action: resumeGame },
-	{ label: "END RUN",      action: endRun     },
+	{ label: "RESUME", action: resumeGame },
+	{ label: "END RUN", action: endRun },
 	{ label: "QUIT TO MENU", action: quitToMenu },
 ];
 
-const optionTexts = OPTIONS.map((o) =>
-	new Text({
-		text: o.label,
-		style: { fontSize: 18, fill: 0x5555aa, fontFamily: "monospace" },
-	}),
+const optionTexts = OPTIONS.map(
+	(o) =>
+		new Text({
+			text: o.label,
+			style: { fontSize: 18, fill: 0x5555aa, fontFamily: "monospace" },
+		}),
 );
 
 // ── Runtime state ─────────────────────────────────────────────────────────────
 let targetAlpha = 0;
-let focused     = 0;
+let focused = 0;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function confirmFocused(): void {
@@ -43,13 +49,19 @@ export function initPauseOverlay(): void {
 
 	optionTexts.forEach((t, i) => {
 		t.eventMode = "static";
-		t.cursor    = "pointer";
-		t.on("pointerover",  () => { focused = i; });
-		t.on("pointerdown",  (e) => { e.stopPropagation(); focused = i; confirmFocused(); });
+		t.cursor = "pointer";
+		t.on("pointerover", () => {
+			focused = i;
+		});
+		t.on("pointerdown", (e) => {
+			e.stopPropagation();
+			focused = i;
+			confirmFocused();
+		});
 		overlay.addChild(t);
 	});
 
-	overlay.alpha     = 0;
+	overlay.alpha = 0;
 	overlay.eventMode = "none";
 	app.stage.addChild(overlay);
 
@@ -75,11 +87,11 @@ export function initPauseOverlay(): void {
 
 	onStateChange((state) => {
 		if (state === "paused") {
-			targetAlpha       = 1;
-			focused           = 0;
+			targetAlpha = 1;
+			focused = 0;
 			overlay.eventMode = "static";
 		} else {
-			targetAlpha       = 0;
+			targetAlpha = 0;
 			overlay.eventMode = "none";
 		}
 	});
@@ -92,8 +104,8 @@ export function initPauseOverlay(): void {
 			(t.style as { fill: number }).fill = i === focused ? 0xffffff : 0x5555aa;
 		});
 
-		const w   = app.screen.width;
-		const h   = app.screen.height;
+		const w = app.screen.width;
+		const h = app.screen.height;
 		const mid = h / 2;
 
 		screenBg.clear();

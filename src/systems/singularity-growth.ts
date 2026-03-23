@@ -1,8 +1,8 @@
-import { ABSORPTION_RADIUS, setRadius } from "./singularity";
-import { getMultiplier, onComboBreak } from "./combo";
+import { onStateChange } from "../state";
 import { onAbsorb } from "./absorption";
+import { ABSORPTION_RADIUS, setRadius } from "./singularity";
 
-// Pixels added per sqrt-unit of (multiplier - 1) — increase for faster growth
+// Pixels added per sqrt-unit of total absorptions — increase for faster growth
 const GROWTH_SCALE = 2;
 // Absolute maximum radius — applies on large (desktop) viewports
 const MAX_RADIUS_ABS = 120;
@@ -19,19 +19,25 @@ function getMaxRadius(): number {
 	);
 }
 
-function computeRadius(multiplier: number): number {
+function computeRadius(totalAbsorbed: number): number {
 	return Math.min(
-		ABSORPTION_RADIUS + GROWTH_SCALE * Math.sqrt(multiplier - 1),
+		ABSORPTION_RADIUS + GROWTH_SCALE * Math.sqrt(totalAbsorbed),
 		getMaxRadius(),
 	);
 }
 
 export function initSingularityGrowth(): void {
-	onAbsorb(() => {
-		setRadius(computeRadius(getMultiplier()));
+	let totalAbsorbed = 0;
+
+	onStateChange((state) => {
+		if (state === "playing") {
+			totalAbsorbed = 0;
+			setRadius(ABSORPTION_RADIUS);
+		}
 	});
 
-	onComboBreak(() => {
-		setRadius(ABSORPTION_RADIUS);
+	onAbsorb((count) => {
+		totalAbsorbed += count;
+		setRadius(computeRadius(totalAbsorbed));
 	});
 }

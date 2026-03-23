@@ -1,7 +1,7 @@
 import { Container, Graphics, Text } from "pixi.js";
 import { app } from "../app";
+import { changeMode, onStateChange, restartGame } from "../state";
 import { getScore } from "../systems/scoring";
-import { restartGame, changeMode, onStateChange } from "../state";
 
 const overlay = new Container();
 const bg = new Graphics();

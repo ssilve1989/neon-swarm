@@ -16,8 +16,8 @@ vi.mock("../../src/app", () => ({
 
 import { getState, setState } from "../../src/state";
 import {
-	CLOCK_DURATION,
 	addTime,
+	CLOCK_DURATION,
 	getTimeRemaining,
 	initClock,
 } from "../../src/systems/clock";

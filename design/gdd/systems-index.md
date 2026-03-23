@@ -27,18 +27,18 @@ types, session stats). Two systems are not yet started (Mode Selection, High Sco
 | 1 | Renderer / App | Core | MVP | Implemented | src/app.ts, src/main.ts | — |
 | 2 | Input System | Core | MVP | Implemented | src/systems/input.ts | — |
 | 3 | Game State Machine | Core | MVP | Implemented | design/gdd/game-state-machine.md | — |
-| 4 | Particle System | Core | MVP | Needs Update | design/gdd/particles.md | Renderer / App |
+| 4 | Particle System | Core | MVP | Implemented | design/gdd/particles.md | Renderer / App |
 | 5 | Singularity | Core | MVP | Implemented | src/systems/singularity.ts | Input System, Renderer / App |
-| 6 | Combo & Multiplier | Gameplay | MVP | Implemented | src/systems/combo.ts | Game State Machine |
+| 6 | ~~Combo & Multiplier~~ | Gameplay | MVP | **Removed** (Sprint 2) | — | — |
 | 7 | Session Clock | Gameplay | MVP | Implemented | src/systems/clock.ts | Game State Machine |
-| 8 | Scoring | Gameplay | MVP | Implemented | src/systems/scoring.ts | Combo & Multiplier |
+| 8 | Scoring | Gameplay | MVP | Implemented | src/systems/scoring.ts | Absorption System |
 | 9 | Absorption System | Gameplay | MVP | Implemented | src/systems/absorption.ts | Particle System, Singularity |
-| 10 | Singularity Growth | Gameplay | MVP | Implemented | src/systems/singularity-growth.ts | Combo & Multiplier, Singularity |
-| 11 | Threshold Events | Gameplay | MVP | Needs Update (nova burst) | src/systems/threshold.ts | Combo & Multiplier, Session Clock |
-| 12 | Audio | Audio | MVP | Implemented | src/systems/audio.ts | Absorption System, Threshold Events, Combo & Multiplier |
+| 10 | Singularity Growth | Gameplay | MVP | Implemented | src/systems/singularity-growth.ts | Absorption System, Singularity |
+| 11 | Threshold Events | Gameplay | MVP | Implemented | src/systems/threshold.ts | Absorption System, Session Clock |
+| 12 | Audio | Audio | MVP | Implemented | src/systems/audio.ts | Absorption System, Threshold Events |
 | 13 | Visual Feedback | Core | MVP | Implemented | src/systems/visual-feedback.ts | Absorption System, Threshold Events |
-| 14 | HUD | UI | MVP | Implemented | src/ui/hud.ts | Scoring, Combo & Multiplier, Session Clock |
-| 15 | Game Over Screen | UI | MVP | Needs Update (stats + export) | src/ui/game-over-screen.ts | Game State Machine, Scoring |
+| 14 | HUD | UI | MVP | Implemented | src/ui/hud.ts | Scoring, Session Clock, Threshold Events |
+| 15 | Game Over Screen | UI | MVP | Implemented | src/ui/game-over-screen.ts | Game State Machine, Scoring |
 | 16 | High Score | Persistence | Vertical Slice | Not Started | — | Scoring, Game Over Screen, Game State Machine |
 | 17 | Mode Selection | UI | MVP | Implemented | design/gdd/mode-selection.md | Game State Machine |
 
@@ -162,8 +162,9 @@ Six existing systems have expanded scope from the original design. Flag these fo
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 17 |
-| Fully implemented | 14 |
-| Needs update (v1.1 features remaining) | 2 (Threshold: nova burst; Game Over: stats + export) |
+| Fully implemented | 15 |
+| Removed | 1 (Combo & Multiplier) |
+| Needs update | 0 |
 | Not started | 1 (High Score) |
 | Design docs written | 2 (Game State Machine, Mode Selection) |
 | Design docs approved | 2 |
@@ -181,6 +182,6 @@ Six existing systems have expanded scope from the original design. Flag these fo
 - [x] Session Clock — mode-aware (Standard 30s, Blitz 15s, Zen disabled) — **Done**
 - [x] Scoring — peak multiplier tracking — **Done**
 - [x] HUD — mode indicator, Zen label, pause button — **Done**
-- [ ] Threshold Events — add nova burst logic
-- [ ] Particle System — add Time + Repulsor particle type architecture
-- [ ] Game Over Screen — add session stats display + Canvas PNG export
+- [x] Particle System — Time + Repulsor particle types with density ramp — **Done**
+- [x] Game Over Screen — peak multiplier display — **Done**
+- [ ] Threshold Events — nova burst (deferred to Sprint 3; visual polish pass)

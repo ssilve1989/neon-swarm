@@ -16,8 +16,11 @@ export function getDeviceTier(): DeviceTier {
 
 export function getParticleCount(): number {
 	switch (getDeviceTier()) {
-		case "mobile": return PARTICLE_COUNT_MOBILE;
-		case "tablet": return PARTICLE_COUNT_TABLET;
-		case "desktop": return PARTICLE_COUNT_DESKTOP;
+		case "mobile":
+			return PARTICLE_COUNT_MOBILE;
+		case "tablet":
+			return PARTICLE_COUNT_TABLET;
+		case "desktop":
+			return PARTICLE_COUNT_DESKTOP;
 	}
 }

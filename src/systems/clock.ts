@@ -1,7 +1,7 @@
 import { app } from "../app";
-import { getState, setState, getMode, onStateChange } from "../state";
+import { getMode, getState, onStateChange, setState } from "../state";
 
-export const CLOCK_DURATION       = 30; // Standard (seconds)
+export const CLOCK_DURATION = 30; // Standard (seconds)
 export const BLITZ_CLOCK_DURATION = 15; // Blitz (seconds)
 
 let timeRemaining = 0;

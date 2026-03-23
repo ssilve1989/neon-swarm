@@ -1,21 +1,22 @@
-import { onAbsorb } from "./absorption";
-import { getMultiplier, onComboBreak } from "./combo";
-import { addTime } from "./clock";
 import { getMode, onStateChange } from "../state";
+import { onAbsorb } from "./absorption";
+import { addTime } from "./clock";
 
 export type ThresholdTier = 1 | 2 | 3;
 
+// Absorption count thresholds — tuning knobs
 const THRESHOLDS: [number, ThresholdTier][] = [
 	[50, 1],
-	[100, 2],
-	[200, 3],
+	[200, 2],
+	[500, 3],
 ];
 
-const TIME_BONUS = 5; // seconds granted per threshold crossing
+const TIME_BONUS = 5; // seconds granted per threshold crossing (Standard only)
 
 type ThresholdListener = (tier: ThresholdTier) => void;
 const listeners: ThresholdListener[] = [];
 
+let totalAbsorbed = 0;
 const crossed = new Set<ThresholdTier>();
 
 export function onThreshold(fn: ThresholdListener): () => void {
@@ -28,15 +29,16 @@ export function onThreshold(fn: ThresholdListener): () => void {
 
 export function initThreshold(): void {
 	onStateChange((state) => {
-		if (state === "playing") crossed.clear();
+		if (state === "playing") {
+			totalAbsorbed = 0;
+			crossed.clear();
+		}
 	});
 
-	onComboBreak(() => crossed.clear());
-
-	onAbsorb(() => {
-		const m = getMultiplier();
+	onAbsorb((count) => {
+		totalAbsorbed += count;
 		for (const [value, tier] of THRESHOLDS) {
-			if (m >= value && !crossed.has(tier)) {
+			if (totalAbsorbed >= value && !crossed.has(tier)) {
 				crossed.add(tier);
 				if (getMode() === "standard") addTime(TIME_BONUS);
 				for (const fn of listeners) fn(tier);

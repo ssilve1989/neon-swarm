@@ -28,6 +28,7 @@ function makeSprite(
 	const canvas = document.createElement("canvas");
 	canvas.width = size;
 	canvas.height = size;
+	// biome-ignore lint/style/noNonNullAssertion: we know it will be supported
 	draw(canvas.getContext("2d")!, size / 2);
 	return Sprite.from(canvas);
 }

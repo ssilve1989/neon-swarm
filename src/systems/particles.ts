@@ -1,7 +1,7 @@
-import { Container, Sprite, Graphics } from "pixi.js";
+import { Container, Graphics, Sprite } from "pixi.js";
 import { app } from "../app";
-import { getParticleCount } from "../utils/device-tier";
 import { getState, onStateChange } from "../state";
+import { getParticleCount } from "../utils/device-tier";
 
 export const PARTICLE_COUNT = getParticleCount();
 
@@ -11,12 +11,22 @@ const cellNext = new Int32Array(PARTICLE_COUNT).fill(-1);
 let gridCols = 0;
 let gridRows = 0;
 
-export function getParticlesInRegion(cx: number, cy: number, radius: number): number[] {
+export function getParticlesInRegion(
+	cx: number,
+	cy: number,
+	radius: number,
+): number[] {
 	const result: number[] = [];
 	const minCellX = Math.max(0, Math.floor((cx - radius) / CELL_SIZE));
-	const maxCellX = Math.min(gridCols - 1, Math.floor((cx + radius) / CELL_SIZE));
+	const maxCellX = Math.min(
+		gridCols - 1,
+		Math.floor((cx + radius) / CELL_SIZE),
+	);
 	const minCellY = Math.max(0, Math.floor((cy - radius) / CELL_SIZE));
-	const maxCellY = Math.min(gridRows - 1, Math.floor((cy + radius) / CELL_SIZE));
+	const maxCellY = Math.min(
+		gridRows - 1,
+		Math.floor((cy + radius) / CELL_SIZE),
+	);
 	for (let cellRow = minCellY; cellRow <= maxCellY; cellRow++) {
 		for (let cellCol = minCellX; cellCol <= maxCellX; cellCol++) {
 			let idx = cellHeads[cellRow * gridCols + cellCol];
@@ -41,6 +51,13 @@ export const PARTICLE_COLORS = [
 ];
 const SPEED_MIN = 0.3;
 const SPEED_MAX = 0.9;
+
+const ACTIVE_START_FRACTION = 0.02; // fraction of pool visible at game start
+const ACTIVE_START_MIN = 30; // minimum active regardless of device tier
+const RAMP_DURATION = 60 * 60; // ticks to reach full density (~60s at 60fps)
+
+let activeCount = PARTICLE_COUNT;
+let prevActiveCount = PARTICLE_COUNT;
 
 function createGlowTexture() {
 	const g = new Graphics();
@@ -85,9 +102,15 @@ export function initParticles(): void {
 	let prevState = getState();
 	onStateChange((state) => {
 		if (state === "playing" && prevState !== "paused") {
+			activeCount = Math.max(
+				ACTIVE_START_MIN,
+				Math.floor(PARTICLE_COUNT * ACTIVE_START_FRACTION),
+			);
+			prevActiveCount = Math.floor(activeCount);
 			for (let i = 0; i < PARTICLE_COUNT; i++) {
 				spawn(i);
 				sprites[i].alpha = 0.4 + Math.random() * 0.6;
+				sprites[i].visible = i < prevActiveCount;
 			}
 		}
 		prevState = state;
@@ -98,8 +121,25 @@ export function initParticles(): void {
 		const h = app.screen.height;
 		const dt = ticker.deltaTime;
 
-		// Pass 1: update positions + wrap
-		for (let i = 0; i < PARTICLE_COUNT; i++) {
+		// Ramp active particle count — only during active play (pauses when paused)
+		if (getState() === "playing") {
+			activeCount = Math.min(
+				PARTICLE_COUNT,
+				activeCount + (PARTICLE_COUNT / RAMP_DURATION) * dt,
+			);
+		}
+		const count = Math.floor(activeCount);
+
+		// Reveal newly active sprites
+		if (count > prevActiveCount) {
+			for (let i = prevActiveCount; i < count; i++) {
+				sprites[i].visible = true;
+			}
+			prevActiveCount = count;
+		}
+
+		// Pass 1: update positions + wrap (active particles only)
+		for (let i = 0; i < count; i++) {
 			px[i] += vx[i] * dt;
 			py[i] += vy[i] * dt;
 			if (px[i] < 0) px[i] += w;
@@ -108,18 +148,22 @@ export function initParticles(): void {
 			else if (py[i] >= h) py[i] -= h;
 		}
 
-		// Pass 2: rebuild spatial grid
+		// Pass 2: rebuild spatial grid (active particles only)
 		const newCols = Math.ceil(w / CELL_SIZE);
 		const newRows = Math.ceil(h / CELL_SIZE);
 		const cellCount = newCols * newRows;
-		if (gridCols !== newCols || gridRows !== newRows || cellHeads.length < cellCount) {
+		if (
+			gridCols !== newCols ||
+			gridRows !== newRows ||
+			cellHeads.length < cellCount
+		) {
 			gridCols = newCols;
 			gridRows = newRows;
 			cellHeads = new Int32Array(cellCount).fill(-1);
 		} else {
 			cellHeads.fill(-1);
 		}
-		for (let i = 0; i < PARTICLE_COUNT; i++) {
+		for (let i = 0; i < count; i++) {
 			const cellX = Math.floor(px[i] / CELL_SIZE);
 			const cellY = Math.floor(py[i] / CELL_SIZE);
 			const cellIdx = cellY * gridCols + cellX;
@@ -128,7 +172,7 @@ export function initParticles(): void {
 		}
 
 		// Pass 3: write sprite positions
-		for (let i = 0; i < PARTICLE_COUNT; i++) {
+		for (let i = 0; i < count; i++) {
 			sprites[i].x = px[i];
 			sprites[i].y = py[i];
 		}

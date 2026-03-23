@@ -36,8 +36,8 @@ vi.mock("../../src/state", () => ({
 	getMode: () => mocks.mode,
 }));
 
-import { initThreshold, onThreshold } from "../../src/systems/threshold";
 import type { ThresholdTier } from "../../src/systems/threshold";
+import { initThreshold, onThreshold } from "../../src/systems/threshold";
 
 function triggerAbsorb() {
 	for (const fn of mocks.absorbListeners) fn(1, 0);

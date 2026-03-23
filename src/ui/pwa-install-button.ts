@@ -2,7 +2,10 @@ import { onStateChange } from "../state";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface BeforeInstallPromptEvent extends Event {
-	readonly userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+	readonly userChoice: Promise<{
+		outcome: "accepted" | "dismissed";
+		platform: string;
+	}>;
 	prompt(): Promise<void>;
 }
 
@@ -13,7 +16,7 @@ const DISMISS_KEY = "neon-swarm-install-dismissed";
 // (9991) < update-toast (9999, ephemeral). Stacking is intentional — the update
 // toast always appears above the persistent install button.
 const Z_BUTTON = "9990";
-const Z_MODAL  = "9991";
+const Z_MODAL = "9991";
 
 // ── Platform detection ────────────────────────────────────────────────────────
 function isIOS(): boolean {

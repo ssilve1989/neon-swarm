@@ -1,7 +1,12 @@
-import { Filter, GlProgram, UniformGroup, Graphics, defaultFilterVert } from "pixi.js";
+import {
+	defaultFilterVert,
+	Filter,
+	GlProgram,
+	Graphics,
+	UniformGroup,
+} from "pixi.js";
 import { app } from "../app";
 import { onAbsorb } from "./absorption";
-import { getMultiplier, onComboBreak } from "./combo";
 import { onThreshold } from "./threshold";
 
 // ─── Bloom Flash ──────────────────────────────────────────────────────────────
@@ -34,9 +39,9 @@ const chromaFilter = new Filter({
 });
 chromaFilter.enabled = false;
 
-const CHROMA_KICK_IN = 30; // multiplier level where CA starts
-const CHROMA_MAX = 0.006; // UV-space offset (~11px at 1920w)
-let chromaTarget = 0;
+// CA ramp params — reserved for future use with an absorption-count driver
+const CHROMA_MAX = 0.006;
+const chromaTarget = 0;
 let chromaCurrent = 0;
 
 export function initVisualFeedback(): void {
@@ -44,16 +49,8 @@ export function initVisualFeedback(): void {
 	app.stage.filters = [chromaFilter];
 
 	onAbsorb(() => {
-		const m = getMultiplier();
-		// CA target: ramps from 0 at 30× to max at 200×
-		chromaTarget =
-			m > CHROMA_KICK_IN
-				? Math.min(((m - CHROMA_KICK_IN) / 170) * CHROMA_MAX, CHROMA_MAX)
-				: 0;
-	});
-
-	onComboBreak(() => {
-		chromaTarget = 0;
+		// TODO: drive CA ramp from absorption count when re-enabled
+		void chromaTarget;
 	});
 
 	onThreshold(() => {
@@ -83,3 +80,6 @@ export function initVisualFeedback(): void {
 		}
 	});
 }
+
+// Suppress unused warning — kept for future CA driver
+void CHROMA_MAX;
