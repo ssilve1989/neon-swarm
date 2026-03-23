@@ -1,4 +1,4 @@
-import { Container, Graphics, Rectangle, Text } from "pixi.js";
+import { Container, Graphics, Rectangle, Text, TextStyle } from "pixi.js";
 import { app } from "../app";
 import { getMode, getState, pauseGame } from "../state";
 import { getTimeRemaining } from "../systems/clock";
@@ -19,18 +19,28 @@ const TOAST_COLOR = 0x00ffcc;
 const TOAST_DURATION_MS = 900;
 const CLOCK_PULSE_MS = 350;
 
+const BTN_W = 44;
+const BTN_H = 32;
+const BTN_RADIUS = 6;
+const pauseBtnStyle = new TextStyle({
+	fontSize: 11,
+	fill: 0x8888aa,
+	fontFamily: "monospace",
+	fontWeight: "bold",
+});
+
 const container = new Container();
 const bgPanel = new Graphics();
 
 const scoreLabel = new Text({ text: "SCORE", style: LABEL_STYLE });
 const scoreValue = new Text({ text: "0", style: VALUE_STYLE });
 
+const clockValueStyle = new TextStyle({ ...VALUE_STYLE });
+const modeBadgeStyle = new TextStyle({ fontSize: 10, fill: 0x445566, fontFamily: "monospace" });
+
 const clockLabel = new Text({ text: "TIME", style: LABEL_STYLE });
-const clockValue = new Text({ text: "30.0", style: { ...VALUE_STYLE } });
-const modeBadge = new Text({
-	text: "",
-	style: { fontSize: 10, fill: 0x445566, fontFamily: "monospace" },
-});
+const clockValue = new Text({ text: "30.0", style: clockValueStyle });
+const modeBadge = new Text({ text: "", style: modeBadgeStyle });
 const zenLabel = new Text({
 	text: "ZEN",
 	style: {
@@ -54,21 +64,56 @@ const toastText = new Text({
 toastText.anchor.set(0.5, 0.5);
 toastText.alpha = 0;
 
+type BtnState = "default" | "hover" | "pressed";
+let pauseBtnState: BtnState = "default";
+
 const pauseBtn = new Container();
-const pauseBtnText = new Text({
-	text: "II",
-	style: { fontSize: 13, fill: 0x5555aa, fontFamily: "monospace" },
-});
+const pauseBtnBg = new Graphics();
+const pauseBtnText = new Text({ text: "PAUSE", style: pauseBtnStyle });
+
+function drawPauseBtn(): void {
+	pauseBtnBg.clear();
+
+	if (pauseBtnState === "default") {
+		pauseBtnBg
+			.roundRect(0, 0, BTN_W, BTN_H, BTN_RADIUS)
+			.stroke({ color: 0x8888aa, width: 1, alpha: 0.7 });
+		pauseBtnStyle.fill = 0x8888aa;
+	} else if (pauseBtnState === "hover") {
+		pauseBtnBg
+			.roundRect(0, 0, BTN_W, BTN_H, BTN_RADIUS)
+			.fill({ color: 0x00ffcc, alpha: 0.18 })
+			.stroke({ color: 0x00ffcc, width: 1, alpha: 0.9 });
+		pauseBtnStyle.fill = 0xffffff;
+	} else {
+		pauseBtnBg
+			.roundRect(0, 0, BTN_W, BTN_H, BTN_RADIUS)
+			.fill({ color: 0x00ffcc, alpha: 0.35 })
+			.stroke({ color: 0x00ffcc, width: 1, alpha: 1.0 });
+		pauseBtnStyle.fill = 0x00ffcc;
+	}
+
+	pauseBtnText.position.set(
+		(BTN_W - pauseBtnText.width) / 2,
+		(BTN_H - pauseBtnText.height) / 2,
+	);
+}
 
 let toastProgress = 0; // 0–1 over TOAST_DURATION_MS
 let toastActive = false;
 let clockPulse = 0; // ms remaining in scale pulse
 
 export function initHud(): void {
-	pauseBtn.addChild(pauseBtnText);
+	pauseBtn.addChild(pauseBtnBg, pauseBtnText);
 	pauseBtn.eventMode = "static";
 	pauseBtn.cursor = "pointer";
-	pauseBtn.on("pointerdown", pauseGame);
+	pauseBtn.hitArea = new Rectangle(0, 0, BTN_W, BTN_H);
+	pauseBtn.on("pointerover", () => { pauseBtnState = "hover"; drawPauseBtn(); });
+	pauseBtn.on("pointerout", () => { pauseBtnState = "default"; drawPauseBtn(); });
+	pauseBtn.on("pointerdown", () => { pauseBtnState = "pressed"; drawPauseBtn(); });
+	pauseBtn.on("pointerup", () => { pauseBtnState = "hover"; drawPauseBtn(); pauseGame(); });
+	pauseBtn.on("pointerupoutside", () => { pauseBtnState = "default"; drawPauseBtn(); });
+	drawPauseBtn();
 
 	container.addChild(bgPanel);
 	container.addChild(scoreLabel, scoreValue);
@@ -136,8 +181,7 @@ export function initHud(): void {
 			clockValue.position.set(w / 2 - clockValue.width / 2, PAD + 14);
 
 			modeBadge.text = mode === "blitz" ? "BLITZ" : "STANDARD";
-			(modeBadge.style as { fill: number }).fill =
-				mode === "blitz" ? 0x774400 : 0x336677;
+			modeBadgeStyle.fill = mode === "blitz" ? 0x774400 : 0x336677;
 			modeBadge.position.set(w / 2 - modeBadge.width / 2, PAD + 40);
 
 			// Clock pulse — scale + color override during animation
@@ -150,11 +194,10 @@ export function initHud(): void {
 						? 1 + 0.35 * (progress / peakAt)
 						: 1.35 - 0.35 * ((progress - peakAt) / (1 - peakAt));
 				clockValue.scale.set(scale);
-				(clockValue.style as { fill: number }).fill = TOAST_COLOR;
+				clockValueStyle.fill = TOAST_COLOR;
 			} else {
 				clockValue.scale.set(1.0);
-				(clockValue.style as { fill: number }).fill =
-					t < 5 ? CLOCK_URGENT_FILL : 0xffffff;
+				clockValueStyle.fill = t < 5 ? CLOCK_URGENT_FILL : 0xffffff;
 			}
 		}
 
@@ -172,9 +215,6 @@ export function initHud(): void {
 		}
 
 		// ── Pause button (top-right) ──────────────────────────────────────────
-		const btnW = pauseBtnText.width;
-		const btnH = pauseBtnText.height;
-		pauseBtn.hitArea = new Rectangle(-4, -4, btnW + 8, btnH + 8);
-		pauseBtn.position.set(w - PAD - btnW, 6);
+		pauseBtn.position.set(w - PAD - BTN_W, (STRIP_H - BTN_H) / 2);
 	});
 }
