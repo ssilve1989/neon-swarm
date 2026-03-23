@@ -10,11 +10,11 @@
 
 | Area | Score | Detail |
 |------|-------|--------|
-| Design | 65% | 5 GDD docs; only 2 have full 8-section specs; 10+ systems have no design doc |
-| Code | 88% | 14/17 systems implemented; 2 need v1.1 updates; 1 not started (High Score) |
-| Architecture | 20% | 1 ADR (device-tier-particle-budget); major decisions undocumented |
-| Production | 75% | Sprint-02 active; release checklist exists; 1 resolved bug; 3 hotfixes landed |
-| Tests | 70% | 6 test files covering all formula systems; no integration or UI tests |
+| Design | 65% | 5 GDD docs; only 2 have full 8-section specs; 11 systems have source files as their "design doc" |
+| Code | 88% | 15/17 systems implemented; 1 removed (Combo & Multiplier); 1 not started (High Score) |
+| Architecture | 20% | 1 ADR (device-tier-particle-budget); Web Audio API, PixiJS v8, state machine choices undocumented |
+| Production | 80% | Sprint 2 closed; no Sprint 3 planned; 6 hotfixes landed; 1 resolved bug |
+| Tests | 70% | 6 unit test files covering all formula systems; no integration or UI tests |
 
 ---
 
@@ -22,32 +22,34 @@
 
 ### Design (`design/`)
 - `design/gdd/game-concept.md` — concept doc
-- `design/gdd/systems-index.md` — 17 systems tracked; 14 implemented, 2 need updates, 1 not started
+- `design/gdd/systems-index.md` — 17 systems tracked; 15 implemented, 1 removed, 1 not started
 - `design/gdd/game-state-machine.md` — full 8-section spec
 - `design/gdd/mode-selection.md` — full 8-section spec
 - `design/gdd/particles.md` — partial (no 8-section format confirmed)
-- No narrative docs (`design/narrative/`)
+- No narrative docs (`design/narrative/`) — N/A for arcade format
 - No level docs (`design/levels/`) — N/A for arcade format
 
-Systems with no design doc (source listed as doc in systems-index):
-Singularity, Combo & Multiplier, Session Clock, Scoring, Absorption System,
-Singularity Growth, Threshold Events, Audio, Visual Feedback, HUD, Game Over Screen
+Systems with no design doc (source file listed as doc in systems-index):
+Singularity, Session Clock, Scoring, Absorption System, Singularity Growth,
+Threshold Events, Audio, Visual Feedback, HUD, Game Over Screen, High Score
 
 ### Source Code (`src/`)
-- 23 TypeScript files
+- 22 TypeScript files
 - Directories: `systems/` (10 files), `ui/` (5 files), `utils/` (1 file)
 - Entry points: `app.ts`, `main.ts`, `state.ts`, `types.ts`
 
 ### Architecture (`docs/architecture/`)
 - `device-tier-particle-budget.md` (ADR-001)
-- Missing ADRs: Web Audio API choice, PixiJS v8 renderer, spatial grid for collision,
+- Missing ADRs: Web Audio API (no audio files), PixiJS v8 renderer, manual Euler physics,
   game state machine pattern
 
 ### Production (`production/`)
-- Active sprint: sprint-02 (0% complete — all tasks open)
+- Last completed sprint: sprint-02 (closed 2026-03-22)
+- No sprint-03 planned yet
 - Release checklist: `releases/release-checklist-0.1.0.md`
 - Patch notes: `releases/patch-note-2026-03-22.md`
-- Hotfixes (3, all 2026-03-22): singularity-teleport, singularity-size-cap, pwa-install-button
+- Hotfixes (6, all 2026-03-22): singularity-teleport, singularity-size-cap, pwa-install-button,
+  pause-visibility, singularity-start-position, shift-cursor-mode
 - Bugs: BUG-0001 (Resolved — game-restart state not reset)
 
 ### Tests (`tests/unit/`)
@@ -62,19 +64,24 @@ Singularity Growth, Threshold Events, Audio, Visual Feedback, HUD, Game Over Scr
 
 ## Gaps Identified
 
-1. **Design docs are thin.** 11 systems in the index reference source files as their design doc.
-   These are code, not design specs. Reverse-documentation via `/reverse-document` is an option
-   if docs become required for a gate check or onboarding.
+1. **No Sprint 3 plan.** Sprint 2 closed with 3 items deferred: Nova Burst (blocked by CA
+   filter blur), Time/Repulsor particle types (needs redesign — Time particles made timer
+   unbeatable), and High Score (stretch goal). Recommend `/sprint-plan` to plan Sprint 3.
 
-2. **Missing ADRs.** Four major architectural decisions lack ADRs: Web Audio API (no audio files),
-   PixiJS v8 renderer, spatial grid for particle collision, game state machine pattern.
-   Most likely to confuse future contributors or agents.
+2. **Nova burst and special particles need design revision.** Nova burst was blocked by a
+   visual artifact. Special particle types need a redesign pass before implementation.
+   Direction should be confirmed before sprint planning.
 
-3. **Sprint-02 not started.** All five tasks (S2-01 through S2-05) are open. No tasks are
-   in-progress as of this report.
+3. **High Score is the last unimplemented system.** Per-mode localStorage personal bests.
+   Marked as Vertical Slice stretch goal — confirm if in scope for Sprint 3.
 
-4. **No milestone definition.** A release checklist exists for 0.1.0 but no milestone document
-   defines the scope of "0.1.0 shipped." Sprint plans currently serve this purpose.
+4. **Missing ADRs.** Four major architectural decisions lack records: Web Audio API choice
+   (no audio files), PixiJS v8 renderer, manual Euler physics (no physics library),
+   game state machine pattern. Risk for onboarding contributors or agents.
+
+5. **Design docs are thin.** 11 systems reference source files as their design doc.
+   These are code, not specs. Run `/reverse-document` if a gate check or new contributor
+   onboarding requires formal design coverage.
 
 ---
 
@@ -82,9 +89,7 @@ Singularity Growth, Threshold Events, Audio, Visual Feedback, HUD, Game Over Scr
 
 | Priority | Action | Skill |
 |----------|--------|-------|
-| 1 | Implement S2-01 — nova burst (threshold.ts + visual-feedback.ts) | — |
-| 2 | Implement S2-02 — game over peak multiplier display | — |
-| 3 | Implement S2-03/S2-04 — Time and Repulsor particle types | — |
-| 4 | Create missing ADRs for Web Audio and PixiJS v8 decisions | `/architecture-decision` |
-| 5 | Reverse-document key systems if gate check is approaching | `/reverse-document` |
-| 6 | Run gate check before declaring sprint-02 complete | `/gate-check` |
+| 1 | Plan Sprint 3 (nova burst, special particles, high score) | `/sprint-plan` |
+| 2 | Document missing ADRs for Web Audio API and PixiJS v8 | `/architecture-decision` |
+| 3 | Reverse-document key systems if gate check is approaching | `/reverse-document` |
+| 4 | Run gate check before declaring v0.1.0 ready | `/gate-check` |

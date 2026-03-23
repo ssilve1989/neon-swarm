@@ -46,7 +46,7 @@ Tier is read-once at page load. A page reload is required for tier changes (e.g.
 
 ## Forbidden Patterns
 
-- No audio files — Web Audio API only (all sound is procedural)
+- No audio files for sound effects — Web Audio API only (procedural oscillators, sample-accurate scheduling); BGM uses HTML Audio Element with an MP3 asset — see ADR-003
 - No physics library — all motion is manual Euler integration
 - No `as any` type casts — fix type errors with proper narrowing
 
@@ -59,3 +59,7 @@ Tier is read-once at page load. A page reload is required for tier changes (e.g.
 ## Architecture Decisions Log
 
 - [ADR-001] Device-tier particle budget — `docs/architecture/device-tier-particle-budget.md`
+- [ADR-002] PixiJS v8 as renderer — `docs/architecture/adr-002-pixijs-v8-renderer.md`
+- [ADR-003] Audio hybrid (HTML Audio + Web Audio API) — `docs/architecture/adr-003-audio-hybrid.md`
+- [ADR-004] Manual physics (Euler integration + spatial grid) — `docs/architecture/adr-004-manual-physics.md`
+- [ADR-005] Game state machine (module-level observer) — `docs/architecture/adr-005-game-state-machine.md`

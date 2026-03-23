@@ -28,17 +28,17 @@ types, session stats). Two systems are not yet started (Mode Selection, High Sco
 | 2 | Input System | Core | MVP | Implemented | src/systems/input.ts | — |
 | 3 | Game State Machine | Core | MVP | Implemented | design/gdd/game-state-machine.md | — |
 | 4 | Particle System | Core | MVP | Implemented | design/gdd/particles.md | Renderer / App |
-| 5 | Singularity | Core | MVP | Implemented | src/systems/singularity.ts | Input System, Renderer / App |
+| 5 | Singularity | Core | MVP | Implemented | design/gdd/singularity.md | Input System, Renderer / App |
 | 6 | ~~Combo & Multiplier~~ | Gameplay | MVP | **Removed** (Sprint 2) | — | — |
-| 7 | Session Clock | Gameplay | MVP | Implemented | src/systems/clock.ts | Game State Machine |
-| 8 | Scoring | Gameplay | MVP | Implemented | src/systems/scoring.ts | Absorption System |
-| 9 | Absorption System | Gameplay | MVP | Implemented | src/systems/absorption.ts | Particle System, Singularity |
-| 10 | Singularity Growth | Gameplay | MVP | Implemented | src/systems/singularity-growth.ts | Absorption System, Singularity |
-| 11 | Threshold Events | Gameplay | MVP | Implemented | src/systems/threshold.ts | Absorption System, Session Clock |
-| 12 | Audio | Audio | MVP | Implemented | src/systems/audio.ts | Absorption System, Threshold Events |
-| 13 | Visual Feedback | Core | MVP | Implemented | src/systems/visual-feedback.ts | Absorption System, Threshold Events |
-| 14 | HUD | UI | MVP | Implemented | src/ui/hud.ts | Scoring, Session Clock, Threshold Events |
-| 15 | Game Over Screen | UI | MVP | Implemented | src/ui/game-over-screen.ts | Game State Machine, Scoring |
+| 7 | Session Clock | Gameplay | MVP | Implemented | design/gdd/session-clock.md | Game State Machine |
+| 8 | Scoring | Gameplay | MVP | Implemented | design/gdd/scoring.md | Absorption System |
+| 9 | Absorption System | Gameplay | MVP | Implemented | design/gdd/absorption.md | Particle System, Singularity |
+| 10 | Singularity Growth | Gameplay | MVP | Implemented | design/gdd/singularity-growth.md | Absorption System, Singularity |
+| 11 | Threshold Events | Gameplay | MVP | Implemented | design/gdd/threshold-events.md | Absorption System, Session Clock |
+| 12 | Audio | Audio | MVP | Implemented | design/gdd/audio.md | Absorption System, Threshold Events |
+| 13 | Visual Feedback | Core | MVP | Implemented | design/gdd/visual-feedback.md | Absorption System, Threshold Events |
+| 14 | HUD | UI | MVP | Implemented | design/gdd/hud.md | Scoring, Session Clock, Threshold Events |
+| 15 | Game Over Screen | UI | MVP | Implemented | design/gdd/game-over-screen.md | Game State Machine, Scoring |
 | 16 | High Score | Persistence | Vertical Slice | Not Started | — | Scoring, Game Over Screen, Game State Machine |
 | 17 | Mode Selection | UI | MVP | Implemented | design/gdd/mode-selection.md | Game State Machine |
 
