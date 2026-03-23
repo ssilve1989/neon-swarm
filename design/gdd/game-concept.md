@@ -3,7 +3,7 @@
 ## One-Line Pitch
 
 A fast-paced arcade web game where you sweep a glowing singularity across thousands
-of neon particles, chaining absorptions to build massive multipliers before your
+of neon particles, chasing absorption milestones to earn time extensions before your
 clock runs out.
 
 ## Genre
@@ -20,63 +20,57 @@ and escalating numbers.
 
 1. Move cursor → singularity follows (mouse + touch via PixiJS pointermove)
 2. Singularity collides with particles → absorption triggers
-3. Each absorption resets/extends the combo timer and adds to the multiplier
-4. Combo timer decays continuously — stop moving and you lose the chain
-5. Multiplier drives score and singularity growth
-6. Growth increases absorption radius → easier to chain → positive feedback loop
+3. Each absorption adds to your cumulative count and the singularity grows
+4. Singularity never shrinks — growth is permanent for the run
+5. Growth increases absorption radius → easier to absorb → positive feedback loop
+6. Reaching absorption milestones (50/200/500) grants +5 seconds (Standard only)
 7. Session ends when the master clock hits zero
 
 ## Session Structure — Survival Time Attack
 
 - Player starts with **30 seconds** on the master clock
-- Crossing multiplier thresholds (**50x, 100x, 200x**) grants **+5 seconds**
-- Dropping a combo does NOT end the game — it resets growth and multiplier back
-  to baseline, creating a setback, not a fail state
-- The threat is the clock: frantic sweeps to maintain chain as time bleeds away
-- Tension curve: early game is generous, late game is desperate clock management
+- The particle field starts sparse (~2% of device budget) and ramps to full density over 60s of active play
+- Crossing absorption milestones (**50/200/500 absorbs**) grants **+5 seconds** (Standard only)
+- Singularity size compounds across the run — there is no setback or reset
+- The threat is the clock: keep absorbing to earn extensions before time runs out
+- Tension curve: early game is low-density with room to breathe; late game is dense and fast-paced
 
 ## Particle Types
 
 | Type | Color | Behavior | Score Value |
 |------|-------|----------|-------------|
-| Standard | Cyan | Normal drift | Base |
-| Time | Gold / amber | Slow passive drift | +1s per absorption |
-| Repulsor | Red / orange | Flees singularity | 2× base |
+| Standard | Cyan | Normal drift | 1 per absorption |
 
-- **Time particles**: rare spawn (~2–3 on screen at a time). Create deliberate clock-hunting moments. Reward players who pursue them instead of sweeping blindly.
-- **Repulsor particles**: actively flee from the singularity. Worth 2× base score to reward aggressive pursuit. Punish passive or slow circular sweeping.
+Time and Repulsor particle types are deferred pending redesign. See Sprint 3 (`production/sprints/sprint-02.md` → Deferred).
 
-## Threshold Spectacle — Nova Burst
+## Threshold Events
 
-At each multiplier threshold (50×, 100×, 200×):
+At each absorption milestone (50/200/500 absorbs):
 
-1. Singularity absorption radius expands to **~3× normal for 0.5 seconds** (nova burst)
-2. All particles within burst radius are auto-absorbed — each counts as a full combo hit
-3. Clock receives +5s (Standard mode only)
-4. Visual: shockwave ripple + brief flash at singularity origin
+1. Clock receives **+5s** (Standard mode only)
+2. Visual: clock pulses cyan at 1.35× scale for 350ms; "+5s" toast floats upward from the clock
+3. Audio: ascending C5→G5 chime
 
-Nova burst absorptions chain naturally into the existing combo — the burst extends the combo timer and feeds the multiplier, making thresholds feel like a rewarded frenzy.
+**Nova burst** (singularity absorption radius expands to ~3× for 0.5s, auto-absorbing nearby particles) is designed but deferred to Sprint 3 — the CA filter interaction needs a dedicated visual pass. See `production/sprints/sprint-02.md`.
 
 ## Game Modes
 
 | Mode | Clock | Threshold Extensions | Score Metric | Run Ends When |
 |------|-------|---------------------|--------------|---------------|
-| Standard | 30s | +5s at 50×/100×/200× | Total score | Clock hits 0 |
-| Blitz | 15s | None | Total score | Clock hits 0 |
-| Zen | None | N/A | Peak multiplier | Player quits |
+| Standard | 30s | +5s at 50/200/500 absorbs | Total absorptions | Clock hits 0 |
+| Blitz | 15s | None | Total absorptions | Clock hits 0 |
+| Zen | None | N/A | Total absorptions | Player quits |
 
-- **Standard**: existing flow — build multiplier, chase threshold bonuses, manage the clock.
-- **Blitz**: same core loop in 15 fixed seconds. No clock extensions. Pure ceiling score run.
-- **Zen**: no clock. Combo break resets multiplier but never ends the run. Play indefinitely. Score = highest multiplier reached.
+- **Standard**: chase absorption milestones to earn clock extensions; manage time pressure while the field densifies.
+- **Blitz**: same core loop in 15 fixed seconds. No extensions. Pure ceiling run.
+- **Zen**: no clock, no pressure. Play indefinitely. Score = total absorptions at quit.
 
 ## Audio — Procedural (Web Audio API)
 
 No asset files. All audio generated at runtime:
 
-- **Absorption blip**: sine/square wave, pitch mapped directly to `State.multiplier`
-  (chain sounds rise dynamically as the combo climbs)
-- **Combo break**: short descending tone
-- **Threshold milestone**: brief ascending chime on +5s grants
+- **Absorption blip**: sine wave, pitch rises with singularity size (tied to growth curve)
+- **Threshold milestone**: ascending C5→G5 chime on +5s grant (Standard only)
 - Bundle cost: ~0 bytes
 
 ## Persistence
@@ -98,10 +92,10 @@ All data in `localStorage` — no server required.
 | Must Have | Nice to Have | Cut |
 |-----------|-------------|-----|
 | Particle swarm (10k+) | Screen shake + chromatic aberration | Levels / progression |
-| Time + Repulsor particle types | Session stats (peak multiplier, absorbed) | Enemies / hazards |
-| Cursor singularity with growth | Shareable score card (Canvas PNG) | Multiplayer |
-| Combo timer + multiplier | Attract mode / idle animation | Unlockables |
-| Nova burst at thresholds | — | — |
+| Cursor singularity with growth | Session stats (absorptions, time survived) | Enemies / hazards |
+| Absorption milestones + clock extensions | Shareable score card (Canvas PNG) | Multiplayer |
+| Particle density ramp | Time + Repulsor particle types (Sprint 3) | Combo timer + multiplier |
+| Nova burst at milestones (Sprint 3) | Attract mode / idle animation | Unlockables |
 | Game modes (Standard, Blitz, Zen) | — | — |
 | Mode selection screen | — | — |
 | Per-mode personal bests (localStorage) | — | — |
@@ -120,7 +114,8 @@ All data in `localStorage` — no server required.
 ## Success Criteria
 
 - Stable 60fps with 10,000+ active particles on desktop
-- Combo chain feels satisfying and readable within 30 seconds of first play
-- Procedural audio pitch rise is noticeable and rewarding by 10x multiplier
+- Absorption feedback (blip + growth) feels satisfying within 30 seconds of first play
+- Clock extension events are visually and audibly distinct — player notices the +5s
+- Density ramp is perceptible: field feels noticeably fuller at 60s than at game start
 - Session length: 1–3 minutes natural arc
 - Touch input works equivalently to mouse
