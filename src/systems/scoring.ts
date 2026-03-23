@@ -8,8 +8,8 @@ export function getScore(): number {
 }
 
 export function initScoring(): void {
-	onStateChange((state) => {
-		if (state === "playing") score = 0;
+	onStateChange((state, prev) => {
+		if (state === "playing" && prev !== "paused") score = 0;
 	});
 
 	onAbsorb((count) => {

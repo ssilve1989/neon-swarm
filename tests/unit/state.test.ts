@@ -34,12 +34,12 @@ describe("setState / getState", () => {
 });
 
 describe("onStateChange", () => {
-	it("calls listener with the new state on transition", () => {
+	it("calls listener with the new state and previous state on transition", () => {
 		setState("idle");
 		const listener = vi.fn();
 		const unsub = onStateChange(listener);
 		setState("playing");
-		expect(listener).toHaveBeenCalledWith("playing");
+		expect(listener).toHaveBeenCalledWith("playing", "idle");
 		unsub();
 	});
 
@@ -50,8 +50,8 @@ describe("onStateChange", () => {
 		const unsubA = onStateChange(a);
 		const unsubB = onStateChange(b);
 		setState("playing");
-		expect(a).toHaveBeenCalledWith("playing");
-		expect(b).toHaveBeenCalledWith("playing");
+		expect(a).toHaveBeenCalledWith("playing", "idle");
+		expect(b).toHaveBeenCalledWith("playing", "idle");
 		unsubA();
 		unsubB();
 	});
@@ -74,7 +74,7 @@ describe("onStateChange", () => {
 		unsubA();
 		setState("playing");
 		expect(a).not.toHaveBeenCalled();
-		expect(b).toHaveBeenCalledWith("playing");
+		expect(b).toHaveBeenCalledWith("playing", "idle");
 		unsubB();
 	});
 });

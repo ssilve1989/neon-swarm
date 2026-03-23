@@ -16,8 +16,8 @@ export function addTime(seconds: number): void {
 }
 
 export function initClock(): void {
-	onStateChange((state) => {
-		if (state === "playing") {
+	onStateChange((state, prev) => {
+		if (state === "playing" && prev !== "paused") {
 			const mode = getMode();
 			timeRemaining = mode === "blitz" ? BLITZ_CLOCK_DURATION : CLOCK_DURATION;
 		}

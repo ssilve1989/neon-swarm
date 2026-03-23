@@ -39,7 +39,10 @@ A **module-level observer** in `src/state.ts`:
 
 ```ts
 // Example: clock self-registers
-onStateChange((state) => {
+// `prev` is the state before the transition — use it to distinguish
+// a new game start (e.g. prev === "game-over") from a resume (prev === "paused")
+onStateChange((state, prev) => {
+  if (state === "playing" && prev !== "paused") resetClock();
   if (state === "playing") startClock();
   else stopClock();
 });
@@ -86,3 +89,6 @@ more readable logs and debugging output than numeric enum values.
   that need updating
 - `onStateChange` returns an unsubscribe function; callers that don't need
   to unsubscribe (most systems) can safely ignore it
+- Listeners receive `(state, prev)` — the new state and the state before the
+  transition. Systems that must behave differently on resume vs. new game
+  (clock, scoring, particles, singularity growth) guard on `prev !== "paused"`
