@@ -168,6 +168,7 @@ export function initSingularity(): void {
 	container.addChild(rim);
 	container.addChild(void_);
 
+	container.position.set(app.screen.width / 2, app.screen.height / 2);
 	app.stage.addChild(container);
 	const updateCursor = (state: string) => {
 		document.body.style.cursor = state === "playing" ? "none" : "";
