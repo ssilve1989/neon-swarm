@@ -29,7 +29,7 @@ UX sign-off: ux-designer approved SHIFT over CTRL (avoids CTRL+W/click browser c
 ### Approvals
 - [x] Fix reviewed by lead-programmer — CHANGES REQUIRED addressed (localStorage guard, JSDoc, comments)
 - [x] Regression test passed (qa-tester) — 19 TCs issued; EC-001 key-repeat bug caught and fixed (!e.repeat guard)
-- [ ] Release approved (producer)
+- [x] Release approved (producer)
 
 ### Rollback Plan
 `git revert` the hotfix commits. The localStorage flag (`shift-hint-seen`) is benign if it persists — it simply suppresses a hint that no longer exists.
