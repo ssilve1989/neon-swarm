@@ -2,10 +2,12 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 type AbsorbFn = (count: number, color: number) => void;
 type BreakFn = () => void;
+type StateListener = (state: string) => void;
 
 const mocks = vi.hoisted(() => ({
 	absorbListeners: [] as AbsorbFn[],
 	comboBreakListeners: [] as BreakFn[],
+	stateListeners: [] as StateListener[],
 	multiplier: 1,
 	setRadius: vi.fn(),
 }));
@@ -28,6 +30,13 @@ vi.mock("../../src/systems/combo", () => ({
 vi.mock("../../src/systems/singularity", () => ({
 	ABSORPTION_RADIUS: 30,
 	setRadius: (r: number) => mocks.setRadius(r),
+}));
+
+vi.mock("../../src/state", () => ({
+	onStateChange: (fn: StateListener) => {
+		mocks.stateListeners.push(fn);
+		return () => {};
+	},
 }));
 
 import { initSingularityGrowth } from "../../src/systems/singularity-growth";
@@ -58,6 +67,10 @@ function triggerAbsorb() {
 
 function triggerComboBreak() {
 	for (const fn of mocks.comboBreakListeners) fn();
+}
+
+function triggerStateChange(state: string) {
+	for (const fn of mocks.stateListeners) fn(state);
 }
 
 beforeAll(() => {
@@ -123,6 +136,41 @@ describe("combo break", () => {
 		triggerAbsorb(); // grow radius
 		mocks.setRadius.mockClear();
 		triggerComboBreak();
+		expect(mocks.setRadius).toHaveBeenCalledWith(ABSORPTION_RADIUS);
+	});
+});
+
+describe("pause/resume behavior", () => {
+	it("preserves radius when resuming from pause — regression for singularity-reset-on-resume", () => {
+		// Arrange: start a game and grow the singularity
+		triggerStateChange("playing");
+		for (let i = 0; i < 20; i++) triggerAbsorb();
+		const grownRadius = mocks.setRadius.mock.calls.at(-1)?.[0] as number;
+		expect(grownRadius).toBeGreaterThan(ABSORPTION_RADIUS);
+		mocks.setRadius.mockClear();
+
+		// Act: pause then resume
+		triggerStateChange("paused");
+		triggerStateChange("playing");
+
+		// Assert: setRadius was NOT called with the base reset value on resume
+		const resetCalls = mocks.setRadius.mock.calls.filter(
+			(call: unknown[]) => call[0] === ABSORPTION_RADIUS,
+		);
+		expect(resetCalls).toHaveLength(0);
+	});
+
+	it("resets radius when starting a new game after game-over", () => {
+		// Arrange: start a game and grow the singularity
+		triggerStateChange("playing");
+		for (let i = 0; i < 20; i++) triggerAbsorb();
+		mocks.setRadius.mockClear();
+
+		// Act: end game and start new game
+		triggerStateChange("game-over");
+		triggerStateChange("playing");
+
+		// Assert: radius was reset to base
 		expect(mocks.setRadius).toHaveBeenCalledWith(ABSORPTION_RADIUS);
 	});
 });
