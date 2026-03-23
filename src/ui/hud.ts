@@ -1,6 +1,7 @@
 import { Container, Graphics, Rectangle, Text, TextStyle } from "pixi.js";
 import { app } from "../app";
 import { getMode, getState, pauseGame } from "../state";
+import { cursorMode } from "../systems/input";
 import { getTimeRemaining } from "../systems/clock";
 import { getScore } from "../systems/scoring";
 import { onThreshold } from "../systems/threshold";
@@ -18,6 +19,9 @@ const CLOCK_URGENT_FILL = 0xff4444;
 const TOAST_COLOR = 0x00ffcc;
 const TOAST_DURATION_MS = 900;
 const CLOCK_PULSE_MS = 350;
+
+const SHIFT_HINT_STORAGE_KEY = "shift-hint-seen";
+const SHIFT_HINT_DURATION_MS = 5000;
 
 const BTN_W = 44;
 const BTN_H = 32;
@@ -103,6 +107,17 @@ let toastProgress = 0; // 0–1 over TOAST_DURATION_MS
 let toastActive = false;
 let clockPulse = 0; // ms remaining in scale pulse
 
+// First-run SHIFT hint — shown once ever, dismissed after SHIFT_HINT_DURATION_MS or on first SHIFT use.
+const shiftHintText = new Text({
+	text: "SHIFT — cursor mode",
+	style: { fontSize: 11, fill: 0x556677, fontFamily: "monospace" },
+});
+shiftHintText.anchor.set(0.5, 0);
+shiftHintText.alpha = 0;
+let shiftHintActive = false;
+let shiftHintTimer = 0;
+let shiftHintTriggered = false;
+
 export function initHud(): void {
 	pauseBtn.addChild(pauseBtnBg, pauseBtnText);
 	pauseBtn.eventMode = "static";
@@ -120,6 +135,7 @@ export function initHud(): void {
 	container.addChild(clockLabel, clockValue, modeBadge, zenLabel);
 	container.addChild(toastText);
 	container.addChild(pauseBtn);
+	container.addChild(shiftHintText);
 	app.stage.addChild(container);
 
 	window.addEventListener("keydown", (e) => {
@@ -216,5 +232,30 @@ export function initHud(): void {
 
 		// ── Pause button (top-right) ──────────────────────────────────────────
 		pauseBtn.position.set(w - PAD - BTN_W, (STRIP_H - BTN_H) / 2);
+
+		// ── First-run SHIFT hint ───────────────────────────────────────────────
+		if (!shiftHintTriggered) {
+			// localStorage can throw in private browsing (Firefox SecurityError) or
+			// when storage is full (QuotaExceededError). Guard both calls so an
+			// unhandled exception never kills the PixiJS ticker.
+			shiftHintTriggered = true;
+			let hintSeen = false;
+			try { hintSeen = !!localStorage.getItem(SHIFT_HINT_STORAGE_KEY); } catch { /* storage unavailable */ }
+			if (!hintSeen) {
+				shiftHintActive = true;
+				shiftHintTimer = SHIFT_HINT_DURATION_MS;
+				shiftHintText.position.set(w / 2, STRIP_H + 8);
+			}
+		}
+		if (shiftHintActive) {
+			shiftHintTimer -= ticker.deltaMS;
+			if (cursorMode || shiftHintTimer <= 0) {
+				shiftHintActive = false;
+				shiftHintText.alpha = 0;
+				try { localStorage.setItem(SHIFT_HINT_STORAGE_KEY, "1"); } catch { /* storage unavailable */ }
+			} else {
+				shiftHintText.alpha = shiftHintTimer < 1000 ? shiftHintTimer / 1000 : 1;
+			}
+		}
 	});
 }

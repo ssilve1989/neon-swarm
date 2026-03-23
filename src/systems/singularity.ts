@@ -1,7 +1,7 @@
 import { Container, Sprite } from "pixi.js";
 import { app } from "../app";
 import { getState, onStateChange } from "../state";
-import { pointer } from "./input";
+import { cursorMode, onCursorModeChange, pointer, resetCursorMode } from "./input";
 
 export const EVENT_HORIZON_RADIUS = 20;
 export const ABSORPTION_RADIUS = 30;
@@ -170,20 +170,30 @@ export function initSingularity(): void {
 
 	container.position.set(app.screen.width / 2, app.screen.height / 2);
 	app.stage.addChild(container);
-	const updateCursor = (state: string) => {
+	// State transitions: reset mode (fires onCursorModeChange), then set cursor for new state.
+	onStateChange((state) => {
+		resetCursorMode();
 		document.body.style.cursor = state === "playing" ? "none" : "";
-	};
-	onStateChange(updateCursor);
-	updateCursor(getState());
+	});
+	// Initialise cursor for current state (e.g. page loaded mid-session).
+	document.body.style.cursor = getState() === "playing" ? "none" : "";
+
+	// cursorMode toggles during play: flip cursor without touching the ticker.
+	onCursorModeChange((active) => {
+		if (getState() !== "playing") return;
+		document.body.style.cursor = active ? "" : "none";
+	});
 
 	const ROTATION_SPEED = 0.015;
 	const MOVE_LERP = 0.05;
 	app.ticker.add((ticker) => {
 		if (getState() !== "playing") return;
 
-		const t = 1 - (1 - MOVE_LERP) ** ticker.deltaTime;
-		container.x += (pointer.x - container.x) * t;
-		container.y += (pointer.y - container.y) * t;
+		if (!cursorMode) {
+			const t = 1 - (1 - MOVE_LERP) ** ticker.deltaTime;
+			container.x += (pointer.x - container.x) * t;
+			container.y += (pointer.y - container.y) * t;
+		}
 		diskContainer.rotation += ROTATION_SPEED * ticker.deltaTime;
 
 		// Lerp hot spot color toward dominant absorbed color
