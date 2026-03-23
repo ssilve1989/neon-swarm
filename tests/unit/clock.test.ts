@@ -75,3 +75,13 @@ describe("ticker", () => {
 		expect(getTimeRemaining()).toBe(before);
 	});
 });
+
+describe("pause and resume", () => {
+	it("preserves time remaining when resuming from pause", () => {
+		tick(10000); // consume 10s
+		const before = getTimeRemaining();
+		setState("paused");
+		setState("playing"); // resume
+		expect(getTimeRemaining()).toBe(before);
+	});
+});

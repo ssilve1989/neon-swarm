@@ -99,9 +99,8 @@ export function initParticles(): void {
 		spawn(i);
 	}
 
-	let prevState = getState();
-	onStateChange((state) => {
-		if (state === "playing" && prevState !== "paused") {
+	onStateChange((state, prev) => {
+		if (state === "playing" && prev !== "paused") {
 			activeCount = Math.max(
 				ACTIVE_START_MIN,
 				Math.floor(PARTICLE_COUNT * ACTIVE_START_FRACTION),
@@ -113,7 +112,6 @@ export function initParticles(): void {
 				sprites[i].visible = i < prevActiveCount;
 			}
 		}
-		prevState = state;
 	});
 
 	app.ticker.add((ticker) => {

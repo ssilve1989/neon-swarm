@@ -56,4 +56,11 @@ describe("getScore", () => {
 		setState("playing");
 		expect(getScore()).toBe(0);
 	});
+
+	it("preserves score when resuming from pause", () => {
+		triggerAbsorb(42);
+		setState("paused");
+		setState("playing"); // resume
+		expect(getScore()).toBe(42);
+	});
 });

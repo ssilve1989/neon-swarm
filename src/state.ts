@@ -1,6 +1,6 @@
 import type { GameMode, GameState } from "./types";
 
-type StateListener = (state: GameState) => void;
+type StateListener = (state: GameState, prev: GameState) => void;
 
 let current: GameState = "mode-select";
 let currentMode: GameMode | null = null;
@@ -16,8 +16,9 @@ export function getMode(): GameMode | null {
 
 export function setState(next: GameState): void {
 	if (next === current) return;
+	const prev = current;
 	current = next;
-	for (const fn of listeners) fn(current);
+	for (const fn of listeners) fn(current, prev);
 }
 
 /** UI command: store the chosen mode and start the game. */

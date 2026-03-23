@@ -1,5 +1,4 @@
 import { onStateChange } from "../state";
-import type { GameState } from "../types";
 import { onAbsorb } from "./absorption";
 import { ABSORPTION_RADIUS, setRadius } from "./singularity";
 
@@ -29,14 +28,12 @@ function computeRadius(totalAbsorbed: number): number {
 
 export function initSingularityGrowth(): void {
 	let totalAbsorbed = 0;
-	let prevState: GameState | null = null;
 
-	onStateChange((state) => {
-		if (state === "playing" && prevState !== "paused") {
+	onStateChange((state, prev) => {
+		if (state === "playing" && prev !== "paused") {
 			totalAbsorbed = 0;
 			setRadius(ABSORPTION_RADIUS);
 		}
-		prevState = state;
 	});
 
 	onAbsorb((count) => {

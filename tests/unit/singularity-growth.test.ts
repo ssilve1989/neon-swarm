@@ -1,7 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 type AbsorbFn = (count: number, color: number) => void;
-type StateListener = (state: string) => void;
+type StateListener = (state: string, prev: string) => void;
 
 const mocks = vi.hoisted(() => ({
 	absorbListeners: [] as AbsorbFn[],
@@ -54,8 +54,11 @@ function triggerAbsorb(count = 1) {
 	for (const fn of mocks.absorbListeners) fn(count, 0);
 }
 
+let currentTestState = "mode-select";
 function triggerStateChange(state: string) {
-	for (const fn of mocks.stateListeners) fn(state);
+	const prev = currentTestState;
+	currentTestState = state;
+	for (const fn of mocks.stateListeners) fn(state, prev);
 }
 
 beforeAll(() => {
