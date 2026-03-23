@@ -1,28 +1,17 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 type AbsorbFn = (count: number, color: number) => void;
-type BreakFn = () => void;
 type StateListener = (state: string) => void;
 
 const mocks = vi.hoisted(() => ({
 	absorbListeners: [] as AbsorbFn[],
-	comboBreakListeners: [] as BreakFn[],
 	stateListeners: [] as StateListener[],
-	multiplier: 1,
 	setRadius: vi.fn(),
 }));
 
 vi.mock("../../src/systems/absorption", () => ({
 	onAbsorb: (fn: AbsorbFn) => {
 		mocks.absorbListeners.push(fn);
-		return () => {};
-	},
-}));
-
-vi.mock("../../src/systems/combo", () => ({
-	getMultiplier: () => mocks.multiplier,
-	onComboBreak: (fn: BreakFn) => {
-		mocks.comboBreakListeners.push(fn);
 		return () => {};
 	},
 }));
@@ -47,26 +36,22 @@ const GROWTH_SCALE = 2;
 const MAX_RADIUS_ABS = 120;
 const MAX_RADIUS_VIEWPORT_FRACTION = 0.15;
 
-function computeMaxRadius(innerWidth: number, innerHeight: number): number {
-	return Math.min(
-		Math.min(innerWidth, innerHeight) * MAX_RADIUS_VIEWPORT_FRACTION,
-		MAX_RADIUS_ABS,
+function computeMaxRadius(w: number, h: number): number {
+	return Math.max(
+		ABSORPTION_RADIUS,
+		Math.min(Math.min(w, h) * MAX_RADIUS_VIEWPORT_FRACTION, MAX_RADIUS_ABS),
 	);
 }
 
-function computeExpectedRadius(multiplier: number, w = 2000, h = 2000): number {
+function computeRadius(totalAbsorbed: number, w = 2000, h = 2000): number {
 	return Math.min(
-		ABSORPTION_RADIUS + GROWTH_SCALE * Math.sqrt(multiplier - 1),
+		ABSORPTION_RADIUS + GROWTH_SCALE * Math.sqrt(totalAbsorbed),
 		computeMaxRadius(w, h),
 	);
 }
 
-function triggerAbsorb() {
-	for (const fn of mocks.absorbListeners) fn(1, 0);
-}
-
-function triggerComboBreak() {
-	for (const fn of mocks.comboBreakListeners) fn();
+function triggerAbsorb(count = 1) {
+	for (const fn of mocks.absorbListeners) fn(count, 0);
 }
 
 function triggerStateChange(state: string) {
@@ -81,33 +66,35 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-	mocks.multiplier = 1;
+	// Reset growth state to a clean new-game start before each test
+	triggerStateChange("mode-select");
+	triggerStateChange("playing");
 	mocks.setRadius.mockClear();
 });
 
 describe("radius growth formula", () => {
-	it("sets radius to base value at multiplier 1 (no growth)", () => {
-		mocks.multiplier = 1;
-		triggerAbsorb();
+	it("sets radius to base value on new game start", () => {
+		triggerStateChange("mode-select");
+		triggerStateChange("playing");
 		expect(mocks.setRadius).toHaveBeenCalledWith(ABSORPTION_RADIUS);
 	});
 
-	it("grows radius with sqrt curve as multiplier increases", () => {
-		mocks.multiplier = 5;
-		triggerAbsorb();
-		expect(mocks.setRadius).toHaveBeenCalledWith(computeExpectedRadius(5));
+	it("grows radius with sqrt curve as total absorbed increases", () => {
+		triggerAbsorb(5);
+		expect(mocks.setRadius).toHaveBeenLastCalledWith(computeRadius(5));
 	});
 
-	it("grows larger at higher multipliers", () => {
-		mocks.multiplier = 10;
-		triggerAbsorb();
-		expect(mocks.setRadius).toHaveBeenCalledWith(computeExpectedRadius(10));
+	it("grows larger with more total absorptions", () => {
+		triggerAbsorb(10);
+		expect(mocks.setRadius).toHaveBeenLastCalledWith(computeRadius(10));
+		triggerAbsorb(10); // now 20 total
+		expect(mocks.setRadius).toHaveBeenLastCalledWith(computeRadius(20));
 	});
 
 	it("caps radius at MAX_RADIUS_ABS on large viewport", () => {
-		mocks.multiplier = 3000; // far past the cap
-		triggerAbsorb();
-		expect(mocks.setRadius).toHaveBeenCalledWith(MAX_RADIUS_ABS);
+		// 30 + 2*sqrt(3000) ≈ 139.5 — well past the 120 cap
+		triggerAbsorb(3000);
+		expect(mocks.setRadius).toHaveBeenLastCalledWith(MAX_RADIUS_ABS);
 	});
 });
 
@@ -116,13 +103,14 @@ describe("viewport-relative size cap", () => {
 		// Arrange: simulate iPhone 13 landscape (844×390)
 		vi.stubGlobal("innerWidth", 844);
 		vi.stubGlobal("innerHeight", 390);
-		mocks.multiplier = 3000;
 
 		// Act
-		triggerAbsorb();
+		triggerAbsorb(3000);
 
-		// Assert: cap = min(390 * 0.15, 120) = 58.5
-		expect(mocks.setRadius).toHaveBeenCalledWith(computeMaxRadius(844, 390));
+		// Assert: cap = max(30, min(390 * 0.15, 120)) = max(30, 58.5) = 58.5
+		expect(mocks.setRadius).toHaveBeenLastCalledWith(
+			computeMaxRadius(844, 390),
+		);
 
 		// Restore
 		vi.stubGlobal("innerWidth", 2000);
@@ -130,21 +118,31 @@ describe("viewport-relative size cap", () => {
 	});
 });
 
-describe("combo break", () => {
-	it("resets radius to base ABSORPTION_RADIUS on combo break", () => {
-		mocks.multiplier = 50;
-		triggerAbsorb(); // grow radius
+describe("new game reset", () => {
+	it("resets radius and absorption count when a new game starts", () => {
+		// Arrange: grow past base radius
+		triggerAbsorb(100);
+		expect(mocks.setRadius).toHaveBeenLastCalledWith(computeRadius(100));
 		mocks.setRadius.mockClear();
-		triggerComboBreak();
+
+		// Act: end the run and start a new game
+		triggerStateChange("game-over");
+		triggerStateChange("playing");
+
+		// Assert: radius reset to base
 		expect(mocks.setRadius).toHaveBeenCalledWith(ABSORPTION_RADIUS);
+
+		// Assert: absorption counter also reset — next absorb grows from 0
+		mocks.setRadius.mockClear();
+		triggerAbsorb(1);
+		expect(mocks.setRadius).toHaveBeenCalledWith(computeRadius(1));
 	});
 });
 
 describe("pause/resume behavior", () => {
 	it("preserves radius when resuming from pause — regression for singularity-reset-on-resume", () => {
-		// Arrange: start a game and grow the singularity
-		triggerStateChange("playing");
-		for (let i = 0; i < 20; i++) triggerAbsorb();
+		// Arrange: grow the singularity
+		triggerAbsorb(20);
 		const grownRadius = mocks.setRadius.mock.calls.at(-1)?.[0] as number;
 		expect(grownRadius).toBeGreaterThan(ABSORPTION_RADIUS);
 		mocks.setRadius.mockClear();
@@ -161,9 +159,8 @@ describe("pause/resume behavior", () => {
 	});
 
 	it("resets radius when starting a new game after game-over", () => {
-		// Arrange: start a game and grow the singularity
-		triggerStateChange("playing");
-		for (let i = 0; i < 20; i++) triggerAbsorb();
+		// Arrange: grow the singularity
+		triggerAbsorb(20);
 		mocks.setRadius.mockClear();
 
 		// Act: end game and start new game

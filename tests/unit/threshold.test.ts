@@ -1,12 +1,11 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 type AbsorbFn = (count: number, color: number) => void;
-type BreakFn = () => void;
+type StateListener = (state: string) => void;
 
 const mocks = vi.hoisted(() => ({
 	absorbListeners: [] as AbsorbFn[],
-	comboBreakListeners: [] as BreakFn[],
-	multiplier: 1,
+	stateListeners: [] as StateListener[],
 	addTimeCalls: [] as number[],
 	mode: "standard" as string | null,
 }));
@@ -14,14 +13,6 @@ const mocks = vi.hoisted(() => ({
 vi.mock("../../src/systems/absorption", () => ({
 	onAbsorb: (fn: AbsorbFn) => {
 		mocks.absorbListeners.push(fn);
-		return () => {};
-	},
-}));
-
-vi.mock("../../src/systems/combo", () => ({
-	getMultiplier: () => mocks.multiplier,
-	onComboBreak: (fn: BreakFn) => {
-		mocks.comboBreakListeners.push(fn);
 		return () => {};
 	},
 }));
@@ -34,17 +25,21 @@ vi.mock("../../src/systems/clock", () => ({
 
 vi.mock("../../src/state", () => ({
 	getMode: () => mocks.mode,
+	onStateChange: (fn: StateListener) => {
+		mocks.stateListeners.push(fn);
+		return () => {};
+	},
 }));
 
 import type { ThresholdTier } from "../../src/systems/threshold";
 import { initThreshold, onThreshold } from "../../src/systems/threshold";
 
-function triggerAbsorb() {
-	for (const fn of mocks.absorbListeners) fn(1, 0);
+function triggerAbsorb(count = 1) {
+	for (const fn of mocks.absorbListeners) fn(count, 0);
 }
 
-function triggerComboBreak() {
-	for (const fn of mocks.comboBreakListeners) fn();
+function triggerStateChange(state: string) {
+	for (const fn of mocks.stateListeners) fn(state);
 }
 
 beforeAll(() => {
@@ -52,44 +47,40 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-	mocks.multiplier = 1;
 	mocks.addTimeCalls.length = 0;
-	triggerComboBreak(); // clears the `crossed` set in threshold.ts
+	// Reset totalAbsorbed and crossed set via new game start
+	triggerStateChange("playing");
 });
 
 describe("threshold crossings", () => {
-	it("fires tier 1 at 50× multiplier", () => {
+	it("fires tier 1 at 50 total absorbed", () => {
 		const listener = vi.fn();
 		const unsub = onThreshold(listener);
-		mocks.multiplier = 50;
-		triggerAbsorb();
+		triggerAbsorb(50);
 		expect(listener).toHaveBeenCalledWith(1 satisfies ThresholdTier);
 		unsub();
 	});
 
-	it("fires tier 2 at 100× multiplier", () => {
+	it("fires tier 2 at 200 total absorbed", () => {
 		const listener = vi.fn();
 		const unsub = onThreshold(listener);
-		mocks.multiplier = 100;
-		triggerAbsorb();
+		triggerAbsorb(200);
 		expect(listener).toHaveBeenCalledWith(2 satisfies ThresholdTier);
 		unsub();
 	});
 
-	it("fires tier 3 at 200× multiplier", () => {
+	it("fires tier 3 at 500 total absorbed", () => {
 		const listener = vi.fn();
 		const unsub = onThreshold(listener);
-		mocks.multiplier = 200;
-		triggerAbsorb();
+		triggerAbsorb(500);
 		expect(listener).toHaveBeenCalledWith(3 satisfies ThresholdTier);
 		unsub();
 	});
 
-	it("fires all three tiers when multiplier jumps past all thresholds", () => {
+	it("fires all three tiers when total absorbed exceeds all thresholds in one absorb", () => {
 		const listener = vi.fn();
 		const unsub = onThreshold(listener);
-		mocks.multiplier = 250;
-		triggerAbsorb();
+		triggerAbsorb(500);
 		expect(listener).toHaveBeenCalledTimes(3);
 		unsub();
 	});
@@ -97,8 +88,7 @@ describe("threshold crossings", () => {
 	it("does not fire below the lowest threshold", () => {
 		const listener = vi.fn();
 		const unsub = onThreshold(listener);
-		mocks.multiplier = 49;
-		triggerAbsorb();
+		triggerAbsorb(49);
 		expect(listener).not.toHaveBeenCalled();
 		unsub();
 	});
@@ -106,36 +96,32 @@ describe("threshold crossings", () => {
 
 describe("time bonus", () => {
 	it("grants +5s on a single threshold crossing", () => {
-		mocks.multiplier = 50;
-		triggerAbsorb();
+		triggerAbsorb(50);
 		expect(mocks.addTimeCalls).toEqual([5]);
 	});
 
 	it("grants +5s for each tier when all crossed in one absorb", () => {
-		mocks.multiplier = 250;
-		triggerAbsorb();
+		triggerAbsorb(500);
 		expect(mocks.addTimeCalls).toEqual([5, 5, 5]);
 	});
 });
 
-describe("one-shot per combo", () => {
-	it("does not fire the same tier twice within one combo", () => {
+describe("one-shot per game run", () => {
+	it("does not fire the same tier twice within one run", () => {
 		const listener = vi.fn();
 		const unsub = onThreshold(listener);
-		mocks.multiplier = 50;
-		triggerAbsorb();
-		triggerAbsorb(); // already crossed — should not fire again
+		triggerAbsorb(50);
+		triggerAbsorb(10); // still same run, tier 1 already crossed
 		expect(listener).toHaveBeenCalledTimes(1);
 		unsub();
 	});
 
-	it("fires again after a combo break resets crossings", () => {
+	it("fires again after a new game start resets crossings", () => {
 		const listener = vi.fn();
 		const unsub = onThreshold(listener);
-		mocks.multiplier = 50;
-		triggerAbsorb(); // cross tier 1
-		triggerComboBreak(); // resets crossed set
-		triggerAbsorb(); // cross tier 1 again
+		triggerAbsorb(50); // cross tier 1
+		triggerStateChange("playing"); // new game — resets totalAbsorbed and crossed
+		triggerAbsorb(50); // cross tier 1 again
 		expect(listener).toHaveBeenCalledTimes(2);
 		unsub();
 	});
