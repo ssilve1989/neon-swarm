@@ -1,6 +1,7 @@
 import { Container, Graphics, Text } from "pixi.js";
 import { app } from "../app";
-import { changeMode, onStateChange, restartGame } from "../state";
+import { changeMode, getMode, onStateChange, restartGame } from "../state";
+import { checkAndSave, getPersonalBest } from "../systems/high-score";
 import { getScore } from "../systems/scoring";
 
 const overlay = new Container();
@@ -18,6 +19,14 @@ const titleText = new Text({
 const scoreText = new Text({
 	text: "",
 	style: { fontSize: 24, fill: 0xaaaacc, fontFamily: "monospace" },
+});
+const pbBestText = new Text({
+	text: "PERSONAL BEST!",
+	style: { fontSize: 16, fill: 0xffa500, fontFamily: "monospace" },
+});
+const pbPrevText = new Text({
+	text: "",
+	style: { fontSize: 14, fill: 0x887799, fontFamily: "monospace" },
 });
 const restartText = new Text({
 	text: "CLICK OR PRESS SPACE TO PLAY AGAIN",
@@ -45,6 +54,9 @@ function handleChangeMode(): void {
 }
 
 export function initGameOverScreen(): void {
+	pbBestText.visible = false;
+	pbPrevText.visible = false;
+
 	changeModeText.eventMode = "static";
 	changeModeText.cursor = "pointer";
 	changeModeText.on("pointerdown", (e) => {
@@ -52,7 +64,15 @@ export function initGameOverScreen(): void {
 		handleChangeMode();
 	});
 
-	overlay.addChild(bg, titleText, scoreText, restartText, changeModeText);
+	overlay.addChild(
+		bg,
+		titleText,
+		scoreText,
+		pbBestText,
+		pbPrevText,
+		restartText,
+		changeModeText,
+	);
 	overlay.eventMode = "none";
 	overlay.alpha = 0;
 	overlay.on("pointerdown", handleRestart);
@@ -66,10 +86,34 @@ export function initGameOverScreen(): void {
 
 	onStateChange((state) => {
 		if (state === "game-over") {
-			scoreText.text = `SCORE  ${getScore().toLocaleString()}`;
+			const score = getScore();
+			const mode = getMode();
+
+			scoreText.text = `SCORE  ${score.toLocaleString()}`;
+
+			if (mode !== null) {
+				const prev = getPersonalBest(mode);
+				const isNewPb = checkAndSave(mode, score);
+
+				if (prev === null) {
+					// First play in this mode — save silently, show nothing
+					pbBestText.visible = false;
+					pbPrevText.visible = false;
+				} else if (isNewPb) {
+					pbBestText.visible = true;
+					pbPrevText.visible = false;
+				} else {
+					pbPrevText.text = `BEST  ${prev.toLocaleString()}`;
+					pbPrevText.visible = true;
+					pbBestText.visible = false;
+				}
+			}
+
 			targetAlpha = 1;
 			overlay.eventMode = "static";
 		} else {
+			pbBestText.visible = false;
+			pbPrevText.visible = false;
 			targetAlpha = 0;
 			overlay.eventMode = "none";
 		}
@@ -87,7 +131,9 @@ export function initGameOverScreen(): void {
 
 		titleText.position.set(w / 2 - titleText.width / 2, mid - 70);
 		scoreText.position.set(w / 2 - scoreText.width / 2, mid);
-		restartText.position.set(w / 2 - restartText.width / 2, mid + 60);
-		changeModeText.position.set(w / 2 - changeModeText.width / 2, mid + 86);
+		pbBestText.position.set(w / 2 - pbBestText.width / 2, mid + 28);
+		pbPrevText.position.set(w / 2 - pbPrevText.width / 2, mid + 28);
+		restartText.position.set(w / 2 - restartText.width / 2, mid + 68);
+		changeModeText.position.set(w / 2 - changeModeText.width / 2, mid + 92);
 	});
 }

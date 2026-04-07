@@ -1,7 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 type AbsorbFn = (count: number, color: number) => void;
-type StateListener = (state: string) => void;
+type StateListener = (state: string, prev: string) => void;
 
 const mocks = vi.hoisted(() => ({
 	absorbListeners: [] as AbsorbFn[],

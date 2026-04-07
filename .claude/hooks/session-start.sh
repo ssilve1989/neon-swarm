@@ -32,12 +32,15 @@ if [ -n "$LATEST_MILESTONE" ]; then
     echo "Active milestone: $(basename "$LATEST_MILESTONE" .md)"
 fi
 
-# Open bug count
+# Open bug count (only files where Status is not Resolved/Closed)
 BUG_COUNT=0
 for dir in tests/playtest production; do
     if [ -d "$dir" ]; then
-        count=$(find "$dir" -name "BUG-*.md" 2>/dev/null | wc -l)
-        BUG_COUNT=$((BUG_COUNT + count))
+        while IFS= read -r -d '' file; do
+            if ! grep -q "^\\*\\*Status\\*\\*: Resolved\|^\\*\\*Status\\*\\*: Closed" "$file" 2>/dev/null; then
+                BUG_COUNT=$((BUG_COUNT + 1))
+            fi
+        done < <(find "$dir" -name "BUG-*.md" -print0 2>/dev/null)
     fi
 done
 if [ "$BUG_COUNT" -gt 0 ]; then

@@ -1,7 +1,12 @@
 import { Container, Sprite } from "pixi.js";
 import { app } from "../app";
 import { getState, onStateChange } from "../state";
-import { cursorMode, onCursorModeChange, pointer, resetCursorMode } from "./input";
+import {
+	cursorMode,
+	onCursorModeChange,
+	pointer,
+	resetCursorMode,
+} from "./input";
 
 export const EVENT_HORIZON_RADIUS = 20;
 export const ABSORPTION_RADIUS = 30;
@@ -139,6 +144,10 @@ export function getRadius(): number {
 
 export function getInfluenceRadius(): number {
 	return currentInfluenceRadius;
+}
+
+export function setSingularityScale(scale: number): void {
+	container.scale.set(scale);
 }
 
 const _pos = { x: 0, y: 0 };

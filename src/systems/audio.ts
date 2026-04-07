@@ -50,6 +50,21 @@ function playTimeExtension(): void {
 	osc2.stop(ac.currentTime + 0.35);
 }
 
+// Low-frequency supernova boom on threshold — all modes
+function playNovaBoom(): void {
+	const ac = getCtx();
+	const osc = ac.createOscillator();
+	const gain = ac.createGain();
+	osc.connect(gain);
+	gain.connect(ac.destination);
+	osc.type = "sine";
+	osc.frequency.setValueAtTime(60, ac.currentTime);
+	gain.gain.setValueAtTime(0.4, ac.currentTime);
+	gain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.3);
+	osc.start(ac.currentTime);
+	osc.stop(ac.currentTime + 0.3);
+}
+
 export function initAudio(): void {
 	let gameIsPlaying = false;
 
@@ -71,8 +86,9 @@ export function initAudio(): void {
 		}
 	});
 
-	// Clock extension chime — Standard mode only (time is only granted in Standard)
+	// Nova boom — all modes; chime follows immediately (Standard only)
 	onThreshold(() => {
+		playNovaBoom();
 		if (getMode() === "standard") playTimeExtension();
 	});
 }

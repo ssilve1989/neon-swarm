@@ -1,15 +1,20 @@
+import type { TextStyleOptions } from "pixi.js";
 import { Container, Graphics, Rectangle, Text, TextStyle } from "pixi.js";
 import { app } from "../app";
 import { getMode, getState, pauseGame } from "../state";
-import { cursorMode } from "../systems/input";
 import { getTimeRemaining } from "../systems/clock";
+import { cursorMode } from "../systems/input";
 import { getScore } from "../systems/scoring";
 import { onThreshold } from "../systems/threshold";
 
 const PAD = 16;
 const STRIP_H = 80;
-const LABEL_STYLE = { fontSize: 11, fill: 0x8888aa, fontFamily: "monospace" };
-const VALUE_STYLE = {
+const LABEL_STYLE: TextStyleOptions = {
+	fontSize: 11,
+	fill: 0x8888aa,
+	fontFamily: "monospace",
+};
+const VALUE_STYLE: TextStyleOptions = {
 	fontSize: 22,
 	fill: 0xffffff,
 	fontFamily: "monospace",
@@ -40,7 +45,11 @@ const scoreLabel = new Text({ text: "SCORE", style: LABEL_STYLE });
 const scoreValue = new Text({ text: "0", style: VALUE_STYLE });
 
 const clockValueStyle = new TextStyle({ ...VALUE_STYLE });
-const modeBadgeStyle = new TextStyle({ fontSize: 10, fill: 0x445566, fontFamily: "monospace" });
+const modeBadgeStyle = new TextStyle({
+	fontSize: 10,
+	fill: 0x445566,
+	fontFamily: "monospace",
+});
 
 const clockLabel = new Text({ text: "TIME", style: LABEL_STYLE });
 const clockValue = new Text({ text: "30.0", style: clockValueStyle });
@@ -123,11 +132,27 @@ export function initHud(): void {
 	pauseBtn.eventMode = "static";
 	pauseBtn.cursor = "pointer";
 	pauseBtn.hitArea = new Rectangle(0, 0, BTN_W, BTN_H);
-	pauseBtn.on("pointerover", () => { pauseBtnState = "hover"; drawPauseBtn(); });
-	pauseBtn.on("pointerout", () => { pauseBtnState = "default"; drawPauseBtn(); });
-	pauseBtn.on("pointerdown", () => { pauseBtnState = "pressed"; drawPauseBtn(); });
-	pauseBtn.on("pointerup", () => { pauseBtnState = "hover"; drawPauseBtn(); pauseGame(); });
-	pauseBtn.on("pointerupoutside", () => { pauseBtnState = "default"; drawPauseBtn(); });
+	pauseBtn.on("pointerover", () => {
+		pauseBtnState = "hover";
+		drawPauseBtn();
+	});
+	pauseBtn.on("pointerout", () => {
+		pauseBtnState = "default";
+		drawPauseBtn();
+	});
+	pauseBtn.on("pointerdown", () => {
+		pauseBtnState = "pressed";
+		drawPauseBtn();
+	});
+	pauseBtn.on("pointerup", () => {
+		pauseBtnState = "hover";
+		drawPauseBtn();
+		pauseGame();
+	});
+	pauseBtn.on("pointerupoutside", () => {
+		pauseBtnState = "default";
+		drawPauseBtn();
+	});
 	drawPauseBtn();
 
 	container.addChild(bgPanel);
@@ -240,7 +265,11 @@ export function initHud(): void {
 			// unhandled exception never kills the PixiJS ticker.
 			shiftHintTriggered = true;
 			let hintSeen = false;
-			try { hintSeen = !!localStorage.getItem(SHIFT_HINT_STORAGE_KEY); } catch { /* storage unavailable */ }
+			try {
+				hintSeen = !!localStorage.getItem(SHIFT_HINT_STORAGE_KEY);
+			} catch {
+				/* storage unavailable */
+			}
 			if (!hintSeen) {
 				shiftHintActive = true;
 				shiftHintTimer = SHIFT_HINT_DURATION_MS;
@@ -252,7 +281,11 @@ export function initHud(): void {
 			if (cursorMode || shiftHintTimer <= 0) {
 				shiftHintActive = false;
 				shiftHintText.alpha = 0;
-				try { localStorage.setItem(SHIFT_HINT_STORAGE_KEY, "1"); } catch { /* storage unavailable */ }
+				try {
+					localStorage.setItem(SHIFT_HINT_STORAGE_KEY, "1");
+				} catch {
+					/* storage unavailable */
+				}
 			} else {
 				shiftHintText.alpha = shiftHintTimer < 1000 ? shiftHintTimer / 1000 : 1;
 			}

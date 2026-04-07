@@ -50,11 +50,19 @@ Tier is read-once at page load. A page reload is required for tier changes (e.g.
 - No physics library — all motion is manual Euler integration
 - No `as any` type casts — fix type errors with proper narrowing
 
+## Deployment
+
+- **Production server**: Hono (`hono/bun`) serving static `dist/` — see `serve.ts` at project root
+- **Run command**: `bun run serve.ts`
+- **Health endpoint**: `GET /health` → `200 ok`
+- **Port**: 3000 (hardcoded)
+
 ## Allowed Libraries / Addons
 
 - **PixiJS v8** — rendering, ticker, container/sprite management
 - **Vite** — build and dev server
 - **Vitest** — unit testing
+- **Hono** — production static-file server (Bun runtime only)
 
 ## Architecture Decisions Log
 
@@ -63,3 +71,4 @@ Tier is read-once at page load. A page reload is required for tier changes (e.g.
 - [ADR-003] Audio hybrid (HTML Audio + Web Audio API) — `docs/architecture/adr-003-audio-hybrid.md`
 - [ADR-004] Manual physics (Euler integration + spatial grid) — `docs/architecture/adr-004-manual-physics.md`
 - [ADR-005] Game state machine (module-level observer) — `docs/architecture/adr-005-game-state-machine.md`
+- [ADR-006] Hono/Bun production server — `docs/architecture/adr-006-production-server.md`

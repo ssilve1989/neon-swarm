@@ -34,12 +34,12 @@ types, session stats). Two systems are not yet started (Mode Selection, High Sco
 | 8 | Scoring | Gameplay | MVP | Implemented | design/gdd/scoring.md | Absorption System |
 | 9 | Absorption System | Gameplay | MVP | Implemented | design/gdd/absorption.md | Particle System, Singularity |
 | 10 | Singularity Growth | Gameplay | MVP | Implemented | design/gdd/singularity-growth.md | Absorption System, Singularity |
-| 11 | Threshold Events | Gameplay | MVP | Implemented | design/gdd/threshold-events.md | Absorption System, Session Clock |
+| 11 | Threshold Events | Gameplay | MVP | Implemented | design/gdd/threshold-events.md, src/systems/nova-burst.ts | Absorption System, Session Clock |
 | 12 | Audio | Audio | MVP | Implemented | design/gdd/audio.md | Absorption System, Threshold Events |
 | 13 | Visual Feedback | Core | MVP | Implemented | design/gdd/visual-feedback.md | Absorption System, Threshold Events |
 | 14 | HUD | UI | MVP | Implemented | design/gdd/hud.md | Scoring, Session Clock, Threshold Events |
 | 15 | Game Over Screen | UI | MVP | Implemented | design/gdd/game-over-screen.md | Game State Machine, Scoring |
-| 16 | High Score | Persistence | Vertical Slice | Not Started | — | Scoring, Game Over Screen, Game State Machine |
+| 16 | High Score | Persistence | Vertical Slice | Implemented | src/systems/high-score.ts | Scoring, Game Over Screen, Game State Machine |
 | 17 | Mode Selection | UI | MVP | Implemented | design/gdd/mode-selection.md | Game State Machine |
 
 ---
@@ -162,10 +162,10 @@ Six existing systems have expanded scope from the original design. Flag these fo
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 17 |
-| Fully implemented | 15 |
+| Fully implemented | 16 |
 | Removed | 1 (Combo & Multiplier) |
 | Needs update | 0 |
-| Not started | 1 (High Score) |
+| Not started | 0 |
 | Design docs written | 2 (Game State Machine, Mode Selection) |
 | Design docs approved | 2 |
 
@@ -175,7 +175,7 @@ Six existing systems have expanded scope from the original design. Flag these fo
 
 ### New systems to build
 - [x] Mode Selection screen — **Implemented**
-- [ ] High Score — per-mode localStorage, Vertical Slice (`/design-system high-score`)
+- [x] High Score — per-mode localStorage — **Implemented** (`src/systems/high-score.ts`)
 
 ### Existing systems to update (v1.1 features remaining)
 - [x] Game State Machine — PAUSED state, mode tracking, Page Visibility API — **Done**
@@ -183,5 +183,5 @@ Six existing systems have expanded scope from the original design. Flag these fo
 - [x] Scoring — peak multiplier tracking — **Done**
 - [x] HUD — mode indicator, Zen label, pause button — **Done**
 - [x] Particle System — Time + Repulsor particle types with density ramp — **Done**
-- [x] Game Over Screen — peak multiplier display — **Done**
-- [ ] Threshold Events — nova burst (deferred to Sprint 3; visual polish pass)
+- [x] Game Over Screen — PB display, nova burst — **Done**
+- [x] Threshold Events — nova burst supernova animation — **Done** (`src/systems/nova-burst.ts`)
