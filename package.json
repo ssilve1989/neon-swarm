@@ -22,7 +22,7 @@
 	"engines": {
 		"node": ">=26"
 	},
-	"packageManager": "pnpm@12.4.2",
+	"packageManager": "pnpm@12.11.1",
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.8",
 		"@commitlint/cli": "^21.2.2",
