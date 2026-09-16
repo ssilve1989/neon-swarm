@@ -1,17 +1,18 @@
-FROM oven/bun:1.3.11 AS builder
+FROM node:26-slim AS builder
 WORKDIR /app
-COPY package.json bun.lock ./
+COPY package.json pnpm-lock.yaml ./
 COPY scripts/install-hooks.js ./scripts/
-RUN bun install --frozen-lockfile
+RUN npm install -g pnpm@12 && pnpm install --frozen-lockfile
 COPY . .
-RUN bun run build
+RUN pnpm run build
 
-FROM oven/bun:1.3.11-slim AS runner
+FROM node:26-slim AS runner
 WORKDIR /app
-COPY package.json bun.lock ./
+ENV NODE_ENV=production
+COPY package.json pnpm-lock.yaml ./
 COPY scripts/install-hooks.js ./scripts/
-RUN bun install --frozen-lockfile --production
+RUN npm install -g pnpm@12 && pnpm install --frozen-lockfile --prod
 COPY --from=builder /app/dist ./dist
 COPY serve.ts ./
 EXPOSE 3000
-CMD ["bun", "run", "serve.ts"]
+CMD ["node", "serve.ts"]
