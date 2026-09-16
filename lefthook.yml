@@ -3,7 +3,7 @@ pre-commit:
   commands:
     biome:
       glob: "*.{js,ts,cjs,mjs,jsx,tsx,json,jsonc}"
-      run: bunx --bun biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
+      run: pnpm exec biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
       stage_fixed: true
     doc-sync-check:
       run: |
@@ -21,4 +21,4 @@ pre-commit:
 commit-msg:
   commands:
     commitlint:
-      run: bunx --bun commitlint --edit {1}
+      run: pnpm exec commitlint --edit {1}

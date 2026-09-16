@@ -1,6 +1,6 @@
 # ADR-006: Hono/Bun Production Server
 
-**Status**: Accepted
+**Status**: Superseded by [ADR-007](./adr-007-production-server-node.md)
 **Date**: 2026-04-05
 **Deciders**: Steve
 
