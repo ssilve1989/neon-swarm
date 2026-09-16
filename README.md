@@ -35,34 +35,36 @@ Your score is total absorptions; per-mode personal bests persist in `localStorag
 - **Language**: TypeScript (no build-time type stripping; standard `tsc` config)
 - **Renderer**: PixiJS v8 (WebGL, additive blending)
 - **Build**: Vite + `vite-plugin-pwa`
-- **Server**: Bun + Hono (`serve.ts`), static files from `dist`
+- **Server**: Hono + `@hono/node-server` (`serve.ts`), static files from `dist`, run directly by Node's native TS support
 - **Deploy**: Fly.io (Dockerfile + `fly.toml`)
 - **QA**: Vitest (unit tests), Biome (lint/format), Lefthook + commitlint (git hooks)
 
 ## Getting Started
 
-Requires [Bun](https://bun.sh) 1.3.11+.
+Requires [Node](https://nodejs.org) 26+, [pnpm](https://pnpm.io) 12, and
+[mise](https://mise.jdx.dev) (pins both via `mise.toml`).
 
 ```bash
-bun install      # install dependencies
-bun run dev      # start Vite dev server
-bun test         # run unit tests
-bun run lint     # lint + autofix (Biome)
-bun run build    # production build to dist/
-bun run preview  # serve the production build
+pnpm install     # install dependencies
+pnpm dev         # start Vite dev server
+pnpm test        # run unit tests
+pnpm lint        # lint + autofix (Biome)
+pnpm build       # production build to dist/
+pnpm preview     # serve the production build
 ```
 
 ## Deployment
 
-Production runs as a static site served by Bun + Hono, containerized via `Dockerfile`
-and deployed to Fly.io as the `neon-swarm` app:
+Production runs as a static site served by Hono on `@hono/node-server`, run
+directly by Node (native TypeScript support, no build step), containerized via
+`Dockerfile` and deployed to Fly.io as the `neon-swarm` app:
 
 ```bash
-bun run build
+pnpm build
 fly deploy
 ```
 
-`POST /health` reports liveness; the server falls back to `dist/index.html` for
+`GET /health` reports liveness; the server falls back to `dist/index.html` for
 client-side routing.
 
 ## Project Structure
@@ -88,7 +90,7 @@ production/            Sprints, stage reports, releases
 - `docs/architecture/adr-003-audio-hybrid.md` — BGM vs. effects audio split
 - `docs/architecture/adr-004-manual-physics.md` — hand-rolled collision, no engine
 - `docs/architecture/adr-005-game-state-machine.md` — mode-select / playing / paused / game-over
-- `docs/architecture/adr-006-production-server.md` — Bun + Hono on Fly.io
+- `docs/architecture/adr-007-production-server-node.md` — Bun → Node + `@hono/node-server` (supersedes ADR-006)
 
 ## License
 
