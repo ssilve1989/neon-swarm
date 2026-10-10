@@ -2,11 +2,101 @@
 
 Extends `game-concept.md`. Does not replace it.
 
-## One-Line Pitch
+## Overview
 
 At each absorption milestone the player drafts one of three mutators that change how
 the swarm, the singularity, or the scoring rules behave, so every run becomes a
 different build. A daily seeded run gives everyone the same offers.
+
+## Detailed Rules
+
+- **Modes:** drafts run in Standard and Daily. Daily uses Standard rules (30s clock,
+  +5s per threshold). Blitz and Zen never open drafts.
+- **Draft trigger:** each threshold crossing (50 / 200 / 500 absorbs) opens a draft
+  of up to 3 distinct mutators the player has not picked this run.
+- **Picking:** tap/click a card or press 1 / 2 / 3. The game does not pause.
+- **Timeout:** an offer left open for `DRAFT_TIMEOUT_MS` auto-picks card 1.
+- **Queueing:** a threshold crossed while an offer is open queues a draft. It opens
+  right after the current pick.
+- **Stacking:** picks persist for the whole run and combine (see Formulas).
+- **Reset:** the build clears when a new run starts or the player returns to mode select.
+  Pause / resume keeps it. Game over closes any open offer and drops queued drafts.
+- **Seeding:** Standard offers use a random seed per run. Daily offers use
+  `mulberry32(fnv1a(YYYY-MM-DD))` (local date), so the same picks yield the same offers.
+- **Daily PB:** stored per calendar day (`ns_hiscore_daily_YYYY-MM-DD`).
+- **Display:** the build is shown in the HUD, on the game-over screen, and on the share card.
+- **Share card:** pressing S (or tapping SHARE) at game over renders a 1200×630 PNG of
+  the swarm + singularity with mode, score and build. It goes to the native share
+  sheet when it accepts files, otherwise downloads. Cancelling the sheet does nothing.
+
+## Formulas
+
+Each mutator contributes `effects`. For a build `B`:
+
+- `M_k = Π_{m∈B} effects_m.k` for every multiplier `k` (base 1)
+- `vortex = Σ_{m∈B} effects_m.vortex` (base 0, px/frame)
+
+Applied as:
+
+| Quantity | Formula | Range in v1 |
+|---|---|---|
+| Score per absorb | `count × scoreMult` | ×1–2 |
+| Clock drain | `deltaSec × clockDrainMult` | ×1–1.5 |
+| Absorb radius | `growthRadius × absorbMult` | ×1–1.5 |
+| Influence radius | `growthRadius × 4 × absorbMult × influenceMult` | ×1–3 |
+| Move lerp | `0.05 × moveMult` | 0.025–0.05 |
+| Particle drift | `v × driftMult × dt` | ×1–2 |
+| Density ramp | `(N / 3600) × rampMult × dt` | ×1–3 |
+| Vortex step | `(−dy − 0.25·dx, dx − 0.25·dy) × vortex·dt / (dist + 1)` | 0–1.6 px/frame |
+
+Example: Greed + Heavy gives scoreMult 2, clockDrainMult 1.5, absorbMult 1.5 and
+moveMult 0.5. A 10-particle absorb scores 20, and the clock drains 1.5s per real second.
+
+## Edge Cases
+
+- **Three thresholds in one absorb:** the first opens a draft and two are queued. They open one after another.
+- **Pool exhausted:** with 6 mutators and at most 3 picks, every offer has 3 cards. `rollOffer` returns fewer if the pool shrinks.
+- **Pause during a draft:** the offer stays open, the overlay hides, and the timeout stops while paused.
+- **Game over during a draft:** the offer closes with no pick and queued drafts are dropped.
+- **Overclock +5s at a full clock:** the clock still caps at 30s, the same as threshold bonuses.
+- **Daily across midnight:** the seed is fixed when the run starts. The PB key uses the date when the run is saved.
+- **Tap on a card:** `stopPropagation` keeps the tap from moving the singularity.
+- **Share API missing or rejecting files:** the card falls back to a PNG download.
+
+## Dependencies
+
+- **Threshold Events** (`threshold.md`): a threshold crossing opens a draft (wired in `main.ts`).
+- **Clock** (`session-clock.md`): reads `clockDrainMult`. Overclock calls `addTime`.
+- **Scoring** (`scoring.md`): reads `scoreMult`.
+- **Singularity / Growth** (`singularity.md`, `singularity-growth.md`): effective radii and move lerp read the multipliers.
+- **Particles** (`particles.md`): drift, ramp and vortex are applied in the Euler pass.
+- **Mode Selection / HUD / Game Over** (`mode-selection.md`, `hud.md`, `game-over-screen.md`): DAILY card, build line, share option.
+- **Audio** (`audio.md`): pick confirmation arpeggio. The +5s chime also plays in Daily.
+
+## Tuning Knobs
+
+| Knob | File | Value | Safe range | Affects |
+|---|---|---|---|---|
+| `MUTATORS[*].effects` | `src/systems/mutators.ts` | see roster | multipliers 0.5–3 | each build's power |
+| `OFFER_SIZE` | `src/systems/mutators.ts` | 3 | 2–4 | choice breadth |
+| `DRAFT_TIMEOUT_MS` | `src/ui/draft-overlay.ts` | 6000 | 3000–10000 | how long you get to decide |
+| `VORTEX_PULL` | `src/systems/particles.ts` | 0.25 | 0–0.5 | how fast Vortex funnels the swarm in |
+
+## Acceptance Criteria
+
+- [x] Crossing 50 / 200 / 500 in Standard or Daily opens an offer of 3 distinct, unpicked mutators (unit test).
+- [x] Blitz and Zen never open an offer (unit test).
+- [x] A pick updates run modifiers to `combine(build)` and closes the offer (unit test).
+- [x] A draft earned while an offer is open is queued, not lost (unit test).
+- [x] Two Daily runs on the same date get the same first offer (unit test).
+- [x] The build resets on a new run and survives pause (unit test).
+- [x] The build shows in the HUD and on the game-over screen (screenshots in `production/qa/evidence/`).
+- [x] The share card renders 1200×630 with mode, score and build (`mutators-share-card.png`).
+- [x] Mobile tier holds 60fps with any 3-mutator stack (`mutators-perf.md`).
+
+## One-Line Pitch
+
+At each milestone the player drafts a mutator, so every run becomes a different build.
 
 ## Creative Brief
 
