@@ -32,7 +32,6 @@ performance:
   target_framerate: 60
   frame_budget_ms: 16.67
   draw_call_limit: 1
-  memory_ceiling_mb: null
 
 testing:
   framework: "Vitest (unit tests in `tests/unit/`)"
