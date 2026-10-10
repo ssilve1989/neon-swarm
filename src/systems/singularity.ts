@@ -7,6 +7,7 @@ import {
 	pointer,
 	resetCursorMode,
 } from "./input";
+import { getModifiers } from "./mutators";
 
 export const EVENT_HORIZON_RADIUS = 20;
 export const ABSORPTION_RADIUS = 30;
@@ -17,6 +18,10 @@ let currentAbsorptionRadius = ABSORPTION_RADIUS;
 let currentInfluenceRadius = INFLUENCE_RADIUS;
 
 const container = new Container();
+
+/** Stage layer for the singularity visuals (read by the share card snapshot). */
+export { container as singularityLayer };
+
 const diskContainer = new Container();
 let lensSprite: Sprite;
 let hotSprite: Sprite;
@@ -134,16 +139,20 @@ export function setHotSpotColor(hex: number): void {
 export function setRadius(absorptionRadius: number): void {
 	currentAbsorptionRadius = absorptionRadius;
 	currentInfluenceRadius = absorptionRadius * INFLUENCE_RATIO;
-	if (lensSprite) lensSprite.scale.set(currentInfluenceRadius / 128);
-	diskContainer.scale.set(absorptionRadius / ABSORPTION_RADIUS);
 }
 
+/** Effective absorption radius: growth radius × mutator absorbMult. */
 export function getRadius(): number {
-	return currentAbsorptionRadius;
+	return currentAbsorptionRadius * getModifiers().absorbMult;
 }
 
+/** Effective influence radius: growth-scaled influence × mutator influenceMult. */
 export function getInfluenceRadius(): number {
-	return currentInfluenceRadius;
+	return (
+		currentInfluenceRadius *
+		getModifiers().absorbMult *
+		getModifiers().influenceMult
+	);
 }
 
 export function setSingularityScale(scale: number): void {
@@ -198,8 +207,13 @@ export function initSingularity(): void {
 	app.ticker.add((ticker) => {
 		if (getState() !== "playing") return;
 
+		// Sprite scales track effective radii so mutator picks show immediately
+		lensSprite.scale.set(getInfluenceRadius() / 128);
+		diskContainer.scale.set(getRadius() / ABSORPTION_RADIUS);
+
 		if (!cursorMode) {
-			const t = 1 - (1 - MOVE_LERP) ** ticker.deltaTime;
+			const lerp = MOVE_LERP * getModifiers().moveMult;
+			const t = 1 - (1 - lerp) ** ticker.deltaTime;
 			container.x += (pointer.x - container.x) * t;
 			container.y += (pointer.y - container.y) * t;
 		}

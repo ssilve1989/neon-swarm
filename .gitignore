@@ -138,3 +138,6 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 *.lnk
+
+# === Tool artifacts ===
+.playwright-mcp/

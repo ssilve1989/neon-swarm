@@ -1,5 +1,6 @@
 import { onStateChange } from "../state";
 import { onAbsorb } from "./absorption";
+import { getModifiers } from "./mutators";
 
 let score = 0;
 
@@ -13,6 +14,6 @@ export function initScoring(): void {
 	});
 
 	onAbsorb((count) => {
-		score += count;
+		score += count * getModifiers().scoreMult;
 	});
 }

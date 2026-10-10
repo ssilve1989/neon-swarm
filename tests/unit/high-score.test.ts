@@ -61,3 +61,11 @@ describe("checkAndSave", () => {
 		expect(getPersonalBest("zen")).toBeNull();
 	});
 });
+
+describe("daily personal best", () => {
+	it("is scoped to the current day and independent of standard", () => {
+		checkAndSave("daily", 300);
+		expect(getPersonalBest("daily")).toBe(300);
+		expect(getPersonalBest("standard")).toBeNull();
+	});
+});

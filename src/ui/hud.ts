@@ -4,8 +4,10 @@ import { app } from "../app";
 import { getMode, getState, pauseGame } from "../state";
 import { getTimeRemaining } from "../systems/clock";
 import { cursorMode } from "../systems/input";
+import { getPicked } from "../systems/mutators";
 import { getScore } from "../systems/scoring";
 import { onThreshold } from "../systems/threshold";
+import { hasDrafts } from "../types";
 
 const PAD = 16;
 const STRIP_H = 80;
@@ -54,6 +56,11 @@ const modeBadgeStyle = new TextStyle({
 const clockLabel = new Text({ text: "TIME", style: LABEL_STYLE });
 const clockValue = new Text({ text: "30.0", style: clockValueStyle });
 const modeBadge = new Text({ text: "", style: modeBadgeStyle });
+// Active mutator build — one line under the score
+const buildText = new Text({
+	text: "",
+	style: { fontSize: 10, fill: 0x00ffcc, fontFamily: "monospace" },
+});
 const zenLabel = new Text({
 	text: "ZEN",
 	style: {
@@ -157,7 +164,7 @@ export function initHud(): void {
 
 	container.addChild(bgPanel);
 	container.addChild(scoreLabel, scoreValue);
-	container.addChild(clockLabel, clockValue, modeBadge, zenLabel);
+	container.addChild(clockLabel, clockValue, modeBadge, zenLabel, buildText);
 	container.addChild(toastText);
 	container.addChild(pauseBtn);
 	container.addChild(shiftHintText);
@@ -174,7 +181,7 @@ export function initHud(): void {
 
 	// Trigger toast + clock pulse on time extension (Standard only)
 	onThreshold(() => {
-		if (getMode() !== "standard") return;
+		if (!hasDrafts(getMode())) return;
 		toastProgress = 0;
 		toastActive = true;
 		clockPulse = CLOCK_PULSE_MS;
@@ -202,6 +209,10 @@ export function initHud(): void {
 		scoreLabel.position.set(PAD, PAD);
 		scoreValue.position.set(PAD, PAD + 14);
 		scoreValue.text = getScore().toLocaleString();
+		buildText.text = getPicked()
+			.map((m) => m.name)
+			.join(" · ");
+		buildText.position.set(PAD, PAD + 44);
 
 		// ── Clock / mode indicator (top-center) ───────────────────────────────
 		if (mode === "zen") {
@@ -221,8 +232,10 @@ export function initHud(): void {
 			clockLabel.position.set(w / 2 - clockValue.width / 2, PAD);
 			clockValue.position.set(w / 2 - clockValue.width / 2, PAD + 14);
 
-			modeBadge.text = mode === "blitz" ? "BLITZ" : "STANDARD";
-			modeBadgeStyle.fill = mode === "blitz" ? 0x774400 : 0x336677;
+			modeBadge.text =
+				mode === "blitz" ? "BLITZ" : mode === "daily" ? "DAILY" : "STANDARD";
+			modeBadgeStyle.fill =
+				mode === "blitz" ? 0x774400 : mode === "daily" ? 0x337755 : 0x336677;
 			modeBadge.position.set(w / 2 - modeBadge.width / 2, PAD + 40);
 
 			// Clock pulse — scale + color override during animation

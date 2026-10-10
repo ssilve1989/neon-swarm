@@ -2,7 +2,10 @@ import { Container, Graphics, Text } from "pixi.js";
 import { app } from "../app";
 import { changeMode, getMode, onStateChange, restartGame } from "../state";
 import { checkAndSave, getPersonalBest } from "../systems/high-score";
+import { getPicked } from "../systems/mutators";
 import { getScore } from "../systems/scoring";
+import { todayKey } from "../utils/seeded-random";
+import { shareCardLines, shareScoreCard } from "./share-card";
 
 const overlay = new Container();
 const bg = new Graphics();
@@ -28,6 +31,10 @@ const pbPrevText = new Text({
 	text: "",
 	style: { fontSize: 14, fill: 0x887799, fontFamily: "monospace" },
 });
+const buildText = new Text({
+	text: "",
+	style: { fontSize: 13, fill: 0x00ffcc, fontFamily: "monospace" },
+});
 const restartText = new Text({
 	text: "CLICK OR PRESS SPACE TO PLAY AGAIN",
 	style: { fontSize: 14, fill: 0x5555aa, fontFamily: "monospace" },
@@ -37,7 +44,18 @@ const changeModeText = new Text({
 	style: { fontSize: 12, fill: 0x444477, fontFamily: "monospace" },
 });
 
+const shareText = new Text({
+	text: "SHARE SCORE CARD (S)",
+	style: { fontSize: 12, fill: 0x00ccaa, fontFamily: "monospace" },
+});
+
 let targetAlpha = 0;
+let shareLines: string[] = [];
+
+function handleShare(): void {
+	if (targetAlpha === 0 || shareLines.length === 0) return;
+	void shareScoreCard(shareLines);
+}
 
 function handleRestart(): void {
 	if (targetAlpha === 0) return;
@@ -57,6 +75,13 @@ export function initGameOverScreen(): void {
 	pbBestText.visible = false;
 	pbPrevText.visible = false;
 
+	shareText.eventMode = "static";
+	shareText.cursor = "pointer";
+	shareText.on("pointerdown", (e) => {
+		e.stopPropagation();
+		handleShare();
+	});
+
 	changeModeText.eventMode = "static";
 	changeModeText.cursor = "pointer";
 	changeModeText.on("pointerdown", (e) => {
@@ -70,8 +95,10 @@ export function initGameOverScreen(): void {
 		scoreText,
 		pbBestText,
 		pbPrevText,
+		buildText,
 		restartText,
 		changeModeText,
+		shareText,
 	);
 	overlay.eventMode = "none";
 	overlay.alpha = 0;
@@ -82,6 +109,7 @@ export function initGameOverScreen(): void {
 		if (overlay.alpha < 0.5) return;
 		if (e.code === "Space" || e.code === "Enter") handleRestart();
 		if (e.code === "KeyM") handleChangeMode();
+		if (e.code === "KeyS") handleShare();
 	});
 
 	onStateChange((state) => {
@@ -90,6 +118,10 @@ export function initGameOverScreen(): void {
 			const mode = getMode();
 
 			scoreText.text = `SCORE  ${score.toLocaleString()}`;
+			const build = getPicked().map((m) => m.name);
+			buildText.text = build.length > 0 ? `BUILD  ${build.join(" · ")}` : "";
+			shareLines =
+				mode === null ? [] : shareCardLines(score, mode, build, todayKey());
 
 			if (mode !== null) {
 				const prev = getPersonalBest(mode);
@@ -133,7 +165,9 @@ export function initGameOverScreen(): void {
 		scoreText.position.set(w / 2 - scoreText.width / 2, mid);
 		pbBestText.position.set(w / 2 - pbBestText.width / 2, mid + 28);
 		pbPrevText.position.set(w / 2 - pbPrevText.width / 2, mid + 28);
-		restartText.position.set(w / 2 - restartText.width / 2, mid + 68);
-		changeModeText.position.set(w / 2 - changeModeText.width / 2, mid + 92);
+		buildText.position.set(w / 2 - buildText.width / 2, mid + 52);
+		restartText.position.set(w / 2 - restartText.width / 2, mid + 80);
+		changeModeText.position.set(w / 2 - changeModeText.width / 2, mid + 104);
+		shareText.position.set(w / 2 - shareText.width / 2, mid + 132);
 	});
 }

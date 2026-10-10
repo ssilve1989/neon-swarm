@@ -2,6 +2,8 @@ import { Container, Graphics, Sprite } from "pixi.js";
 import { app } from "../app";
 import { getState, onStateChange } from "../state";
 import { getParticleCount } from "../utils/device-tier";
+import { getModifiers } from "./mutators";
+import { getSingularityPosition } from "./singularity";
 
 export const PARTICLE_COUNT = getParticleCount();
 
@@ -46,6 +48,9 @@ export const vy = new Float32Array(PARTICLE_COUNT);
 
 const sprites: Sprite[] = [];
 
+/** Stage layer holding every particle sprite (read by the share card snapshot). */
+export const particleLayer = new Container();
+
 export const PARTICLE_COLORS = [
 	0x00ffff, 0xff00ff, 0x7700ff, 0x00ff88, 0xff4400, 0xccccff,
 ];
@@ -55,6 +60,7 @@ const SPEED_MAX = 0.9;
 const ACTIVE_START_FRACTION = 0.02; // fraction of pool visible at game start
 const ACTIVE_START_MIN = 30; // minimum active regardless of device tier
 const RAMP_DURATION = 60 * 60; // ticks to reach full density (~60s at 60fps)
+const VORTEX_PULL = 0.25; // Vortex mutator: inward drift as a fraction of orbital speed
 
 let activeCount = PARTICLE_COUNT;
 let prevActiveCount = PARTICLE_COUNT;
@@ -84,7 +90,7 @@ export function absorbParticle(i: number): void {
 
 export function initParticles(): void {
 	const texture = createGlowTexture();
-	const container = new Container();
+	const container = particleLayer;
 	app.stage.addChild(container);
 
 	for (let i = 0; i < PARTICLE_COUNT; i++) {
@@ -123,7 +129,8 @@ export function initParticles(): void {
 		if (getState() === "playing") {
 			activeCount = Math.min(
 				PARTICLE_COUNT,
-				activeCount + (PARTICLE_COUNT / RAMP_DURATION) * dt,
+				activeCount +
+					(PARTICLE_COUNT / RAMP_DURATION) * getModifiers().rampMult * dt,
 			);
 		}
 		const count = Math.floor(activeCount);
@@ -137,9 +144,21 @@ export function initParticles(): void {
 		}
 
 		// Pass 1: update positions + wrap (active particles only)
+		const { driftMult, vortex } = getModifiers();
+		const { x: sx, y: sy } = getSingularityPosition();
+		const drift = driftMult * dt;
+		const swirl = vortex * dt;
 		for (let i = 0; i < count; i++) {
-			px[i] += vx[i] * dt;
-			py[i] += vy[i] * dt;
+			px[i] += vx[i] * drift;
+			py[i] += vy[i] * drift;
+			if (swirl > 0) {
+				// Vortex mutator: constant-speed orbit plus a gentle inward drift
+				const dx = px[i] - sx;
+				const dy = py[i] - sy;
+				const inv = swirl / (Math.sqrt(dx * dx + dy * dy) + 1);
+				px[i] += (-dy - dx * VORTEX_PULL) * inv;
+				py[i] += (dx - dy * VORTEX_PULL) * inv;
+			}
 			if (px[i] < 0) px[i] += w;
 			else if (px[i] >= w) px[i] -= w;
 			if (py[i] < 0) py[i] += h;

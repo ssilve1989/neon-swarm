@@ -23,7 +23,7 @@ const MODES: Array<{
 	{
 		mode: "standard",
 		label: "STANDARD",
-		stat: "30s + time extensions",
+		stat: "30s · extensions · mutators",
 		color: 0x00ccff,
 	},
 	{
@@ -31,6 +31,12 @@ const MODES: Array<{
 		label: "BLITZ",
 		stat: "15s · no extensions",
 		color: 0xff8800,
+	},
+	{
+		mode: "daily",
+		label: "DAILY",
+		stat: "today's mutators · same for all",
+		color: 0x00ff88,
 	},
 	{ mode: "zen", label: "ZEN", stat: "no clock · peak score", color: 0x9944ff },
 ];

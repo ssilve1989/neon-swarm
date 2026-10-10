@@ -1,5 +1,6 @@
 import { app } from "../app";
 import { getMode, getState, onStateChange, setState } from "../state";
+import { getModifiers } from "./mutators";
 
 export const CLOCK_DURATION = 30; // Standard (seconds)
 export const BLITZ_CLOCK_DURATION = 15; // Blitz (seconds)
@@ -26,7 +27,7 @@ export function initClock(): void {
 	app.ticker.add((ticker) => {
 		if (getState() !== "playing") return;
 		if (getMode() === "zen") return;
-		timeRemaining -= ticker.deltaMS / 1000;
+		timeRemaining -= (ticker.deltaMS / 1000) * getModifiers().clockDrainMult;
 		if (timeRemaining <= 0) {
 			timeRemaining = 0;
 			setState("game-over");

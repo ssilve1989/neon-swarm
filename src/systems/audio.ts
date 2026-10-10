@@ -1,4 +1,6 @@
 import { getMode, onStateChange } from "../state";
+import { hasDrafts } from "../types";
+import { onMutatorPicked } from "./mutators";
 import { onThreshold } from "./threshold";
 
 const bgm = new Audio(
@@ -50,6 +52,23 @@ function playTimeExtension(): void {
 	osc2.stop(ac.currentTime + 0.35);
 }
 
+// Square-wave arpeggio up — confirms a mutator pick
+function playMutatorPick(): void {
+	const ac = getCtx();
+	const osc = ac.createOscillator();
+	const gain = ac.createGain();
+	osc.connect(gain);
+	gain.connect(ac.destination);
+	osc.type = "square";
+	osc.frequency.setValueAtTime(392, ac.currentTime);
+	osc.frequency.setValueAtTime(523, ac.currentTime + 0.06);
+	osc.frequency.setValueAtTime(784, ac.currentTime + 0.12);
+	gain.gain.setValueAtTime(0.05, ac.currentTime);
+	gain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.3);
+	osc.start(ac.currentTime);
+	osc.stop(ac.currentTime + 0.3);
+}
+
 // Low-frequency supernova boom on threshold — all modes
 function playNovaBoom(): void {
 	const ac = getCtx();
@@ -89,6 +108,8 @@ export function initAudio(): void {
 	// Nova boom — all modes; chime follows immediately (Standard only)
 	onThreshold(() => {
 		playNovaBoom();
-		if (getMode() === "standard") playTimeExtension();
+		if (hasDrafts(getMode())) playTimeExtension();
 	});
+
+	onMutatorPicked(() => playMutatorPick());
 }

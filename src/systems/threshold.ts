@@ -1,4 +1,5 @@
 import { getMode, onStateChange } from "../state";
+import { hasDrafts } from "../types";
 import { onAbsorb } from "./absorption";
 import { addTime } from "./clock";
 
@@ -11,7 +12,7 @@ const THRESHOLDS: [number, ThresholdTier][] = [
 	[500, 3],
 ];
 
-const TIME_BONUS = 5; // seconds granted per threshold crossing (Standard only)
+const TIME_BONUS = 5; // seconds granted per threshold crossing (Standard/Daily only)
 
 type ThresholdListener = (tier: ThresholdTier) => void;
 const listeners: ThresholdListener[] = [];
@@ -40,7 +41,7 @@ export function initThreshold(): void {
 		for (const [value, tier] of THRESHOLDS) {
 			if (totalAbsorbed >= value && !crossed.has(tier)) {
 				crossed.add(tier);
-				if (getMode() === "standard") addTime(TIME_BONUS);
+				if (hasDrafts(getMode())) addTime(TIME_BONUS);
 				for (const fn of listeners) fn(tier);
 			}
 		}
